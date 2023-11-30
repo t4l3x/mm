@@ -15,7 +15,7 @@
         "symfony/flex": "^1.17|^2",
         "symfony/framework-bundle": "5.4.*",
         "symfony/runtime": "5.4.*",
-        "symfony/yaml": "5.4.*",l
+        "symfony/yaml": "5.4.*",
         "tooyz/moysklad": "^0.7.1"
     },
     "require-dev": {
