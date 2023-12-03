@@ -22,7 +22,7 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
-    App\Service\MoyskladConnection:
+    App\Services\MoyskladConnection:
         arguments:
             $login: '%env(MOYSKLAD_LOGIN)%'
             $password: '%env(MOYSKLAD_PASSWORD)%'
