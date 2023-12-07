@@ -2,7 +2,10 @@
 
 namespace App\Services;
 
-use MoySklad\MoySklad;
+
+use Evgeek\Moysklad\Formatters\ArrayFormat;
+use Evgeek\Moysklad\Http\GuzzleSenderFactory;
+use Evgeek\Moysklad\MoySklad;
 
 class MoyskladConnection
 {
@@ -19,7 +22,14 @@ class MoyskladConnection
     public function __construct(string $login, string $password)
     {
         try {
-            $this->moysklad = MoySklad::getInstance($login, $password);
+            $this->moysklad = new MoySklad(
+                credentials: [$login, $password],
+                formatter: new ArrayFormat(),
+                requestSenderFactory: new GuzzleSenderFactory(
+                    retries: 3,
+                    exceptionTruncateAt: 4000
+                )
+            );
         } catch (\Exception $e) {
             // Handle the exception, log, or rethrow if necessary
             throw new \Exception('Failed to create MoySklad instance: ' . $e->getMessage(), $e->getCode(), $e);
