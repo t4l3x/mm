@@ -15,10 +15,9 @@ class Customer
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
+     * @ORM\Column(name="customer_id", type="integer")
      */
-    private $customer_id;
-
+    private $id;
     /**
      * @ORM\Column(type="integer")
      */
@@ -127,19 +126,19 @@ class Customer
     private $moysklad;
 
     /**
-     * @return mixed
+     * @return int|null
      */
-    public function getCustomerId()
+    public function getId(): ?int
     {
-        return $this->customer_id;
+        return $this->id;
     }
 
     /**
-     * @param mixed $customer_id
+     * @param mixed $id
      */
-    public function setCustomerId($customer_id): void
+    public function setId($id): void
     {
-        $this->customer_id = $customer_id;
+        $this->id = $id;
     }
 
     /**

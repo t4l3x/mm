@@ -46,4 +46,22 @@ class OrderRepository extends ServiceEntityRepository
 
         return $qb->getQuery()->getResult();
     }
+
+    // OrderRepository.php
+
+// ...
+
+    public function findModifiedOrders(): array
+    {
+        $qb = $this->createQueryBuilder('o')
+            ->where('o.moyskladTime IS NOT NULL')
+            ->andWhere('o.dateModified != o.moyskladTime')
+            ->andWhere('o.dateAdded >= :startDate')
+            ->andWhere('o.moysklad  IS NOT NULL')
+            ->setParameter('startDate', new DateTime('2018-10-07'))
+            ->orderBy('o.orderId', 'ASC');
+
+        return $qb->getQuery()->getResult();
+    }
+
 }

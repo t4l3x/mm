@@ -11,22 +11,110 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Order
 {
-    // ... (Previous fields)
+    /**
+     * @ORM\Id
+     * @ORM\GeneratedValue
+     * @ORM\Column(type="integer")
+     */
+    private $orderId;
+
+
+
+    // ... Add all other properties with appropriate annotations ...
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $invoiceNo;
+
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Customer")
+     * @ORM\JoinColumn(name="customer_id", referencedColumnName="customer_id")
+     */
+    private $customerId;
+
+    // ... Other methods ...
+
+    public function getCustomerId(): ?Customer
+    {
+        return $this->customerId;
+    }
+
+    public function setCustomerId(?Customer $customerId): self
+    {
+        $this->customerId = $customerId;
+        return $this;
+    }
+
+    /**
+     * @ORM\Column(type="string", length=26)
+     */
+    private $invoicePrefix;
+
+    // ... Continue adding properties for each table column ...
+
+    /**
+     * @ORM\Column(type="decimal", scale=4, precision=15)
+     */
+    private $total;
 
     /**
      * @ORM\Column(type="string", length=128)
      */
-    private $paymentAddress1;
+    private $paymentAddress_1;
 
     /**
      * @ORM\Column(type="string", length=128, nullable=true)
      */
-    private $paymentAddress2;
+    private $paymentAddress_2;
 
     /**
      * @ORM\Column(type="string", length=128)
      */
     private $paymentCity;
+
+    /**
+     * @ORM\Column(type="string", length=128)
+     */
+    private $firstname;
+
+    /**
+     * @return mixed
+     */
+    public function getFirstname()
+    {
+        return $this->firstname;
+    }
+
+    /**
+     * @param mixed $firstname
+     */
+    public function setFirstName($firstname): void
+    {
+        $this->firstname = $firstname;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLastname()
+    {
+        return $this->Lastname;
+    }
+
+    /**
+     * @param mixed $Lastname
+     */
+    public function setLastname($Lastname): void
+    {
+        $this->Lastname = $Lastname;
+    }
+
+    /**
+     * @ORM\Column(type="string", length=128)
+     */
+    private $Lastname;
 
     /**
      * @ORM\Column(type="string", length=10)
@@ -86,12 +174,12 @@ class Order
     /**
      * @ORM\Column(type="string", length=128)
      */
-    private $shippingAddress1;
+    private $shippingAddress_1;
 
     /**
      * @ORM\Column(type="string", length=128, nullable=true)
      */
-    private $shippingAddress2;
+    private $shippingAddress_2;
 
     /**
      * @ORM\Column(type="string", length=128)
@@ -142,11 +230,6 @@ class Order
      * @ORM\Column(type="text")
      */
     private $comment;
-
-    /**
-     * @ORM\Column(type="decimal", scale=4, precision=15)
-     */
-    private $total;
 
     /**
      * @ORM\Column(type="integer")
@@ -234,7 +317,7 @@ class Order
     private $moysklad;
 
     /**
-     * @ORM\Column(type="timestamp", nullable=true)
+     * @ORM\Column(type="datetime", nullable=true)
      */
     private $moyskladTime;
 
@@ -268,12 +351,61 @@ class Order
      */
     private $paymentChecked;
 
+
+    /**
+     * @return mixed
+     */
+    public function getOrderId()
+    {
+        return $this->orderId;
+    }
+
+    /**
+     * @param mixed $orderId
+     */
+    public function setOrderId($orderId): void
+    {
+        $this->orderId = $orderId;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getInvoiceNo()
+    {
+        return $this->invoiceNo;
+    }
+
+    /**
+     * @param mixed $invoiceNo
+     */
+    public function setInvoiceNo($invoiceNo): void
+    {
+        $this->invoiceNo = $invoiceNo;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getInvoicePrefix()
+    {
+        return $this->invoicePrefix;
+    }
+
+    /**
+     * @param mixed $invoicePrefix
+     */
+    public function setInvoicePrefix($invoicePrefix): void
+    {
+        $this->invoicePrefix = $invoicePrefix;
+    }
+
     /**
      * @return mixed
      */
     public function getPaymentAddress1()
     {
-        return $this->paymentAddress1;
+        return $this->paymentAddress_1;
     }
 
     /**
@@ -281,7 +413,7 @@ class Order
      */
     public function setPaymentAddress1($paymentAddress1): void
     {
-        $this->paymentAddress1 = $paymentAddress1;
+        $this->paymentAddress_1 = $paymentAddress1;
     }
 
     /**
@@ -289,7 +421,7 @@ class Order
      */
     public function getPaymentAddress2()
     {
-        return $this->paymentAddress2;
+        return $this->paymentAddress_2;
     }
 
     /**
@@ -297,7 +429,7 @@ class Order
      */
     public function setPaymentAddress2($paymentAddress2): void
     {
-        $this->paymentAddress2 = $paymentAddress2;
+        $this->paymentAddress_2 = $paymentAddress2;
     }
 
     /**

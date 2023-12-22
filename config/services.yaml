@@ -26,3 +26,6 @@ services:
         arguments:
             $login: '%env(MOYSKLAD_LOGIN)%'
             $password: '%env(MOYSKLAD_PASSWORD)%'
+
+    doctrine.orm.metadata.annotation_reader:
+        class: Doctrine\Common\Annotations\AnnotationReader
