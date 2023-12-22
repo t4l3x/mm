@@ -21,51 +21,8 @@ class CustomerService
         $this->moyskladConnection = $moyskladConnection;
     }
 
-//    public function handleCustomer(Order $order)
-//    {
-//        // Fetching the Moysklad instance
-//        $customer = $order->getCustomer();
-//        $moysklad = $this->moyskladConnection->getMoySkladInstance();
-//        $customerId = $order->getCustomer()->getId();
-//
-//        // Assuming you have a Customer entity and repository
-//
-//        if (empty($order->getMoysklad())) {
-//            $this->logger->info('Creating customer in MoySklad');
-//
-//            $customerName = $order->getFirstName() . ' ' . $order->getLastName();
-//
-//
-//            try {
-//                $response = $moysklad->query()
-//                    ->entity()
-//                    ->counterparty()
-//                    ->create([
-//                        'code' => (string)$customerId,
-//                        'externalCode' => (string)$customerId,
-//                        'name' => $customerName,
-//                        'email' => $customer->getEmail(),
-//                        'phone' => $customer->getTelephone(),
-//                        'actualAddress' => $customerId == '' ? 'Zoomagazin.az' : $order->getShippingAddress1(),
-//                        'tags' => ['онлайн_покупатели']
-//                    ]);
-//
-//                $this->logger->info('Customer created in MoySklad: ' . $response->id);
-//                dd($response);
-//                $customer->setMoysklad($response->id);
-//                $this->entityManager->flush();
-//            } catch (\Exception $e) {
-//                $this->logger->error('Failed to create customer in MoySklad: ' . $e->getMessage());
-//                // Handle the exception appropriately
-//            }
-//        } else {
-//            $this->logger->info('Customer found in MoySklad: ' . $customer->getMoysklad());
-//
-//            // Update logic here if needed
-//        }
-//
-//    }
 
+    /** Todo: Fix line 47 improve logic */
     public function handleCustomer(Order $order)
     {
         $customer = $order->getCustomerId();
@@ -103,7 +60,7 @@ class CustomerService
                             'tags' => ['онлайн_покупатели']
                         ]);
 
-                    dd($response);
+
 
                     $customer->setMoysklad($response->id);
                 } else {
