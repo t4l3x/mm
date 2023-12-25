@@ -3,128 +3,83 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Repository\CustomerRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\CustomerRepository")
- * @ORM\Table(name="oc_customer")
- */
+#[ORM\Entity(repositoryClass: CustomerRepository::class)]
+#[ORM\Table(name: 'oc_customer')]
 class Customer
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(name="customer_id", type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'customer_id', type: 'integer')]
     private $id;
-    /**
-     * @ORM\Column(type="integer")
-     */
+
+    #[ORM\Column(type: 'integer')]
     private $store_id;
 
-    /**
-     * @ORM\Column(type="string", length=32)
-     */
+    #[ORM\Column(type: 'string', length: 32)]
     private $firstname;
 
-    /**
-     * @ORM\Column(type="string", length=32)
-     */
+    #[ORM\Column(type: 'string', length: 32)]
     private $lastname;
 
-    /**
-     * @ORM\Column(type="string", length=96)
-     */
+    #[ORM\Column(type: 'string', length: 96)]
     private $email;
 
-    /**
-     * @ORM\Column(type="string", length=32)
-     */
+    #[ORM\Column(type: 'string', length: 32)]
     private $telephone;
 
-    /**
-     * @ORM\Column(type="string", length=32, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 32, nullable: true)]
     private $fax;
 
-    /**
-     * @ORM\Column(type="string", length=40)
-     */
+    #[ORM\Column(type: 'string', length: 40)]
     private $password;
 
-    /**
-     * @ORM\Column(type="string", length=9)
-     */
+    #[ORM\Column(type: 'string', length: 9)]
     private $salt;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
+    #[ORM\Column(type: 'text', nullable: true)]
     private $cart;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
+    #[ORM\Column(type: 'text', nullable: true)]
     private $wishlist;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private $newsletter;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: 'integer')]
     private $address_id;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: 'integer')]
     private $customer_group_id;
 
-    /**
-     * @ORM\Column(type="string", length=40)
-     */
+    #[ORM\Column(type: 'string', length: 40)]
     private $ip;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private $status;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private $approved;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: 'string', length: 255)]
     private $token;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
+    #[ORM\Column(type: 'datetime')]
     private $date_added;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private $facebook_id;
 
     // ... (other social media IDs like twitter_id, google_id, etc.)
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
+    #[ORM\Column(type: 'text', nullable: true)]
     private $map_link;
 
-    /**
-     * @ORM\Column(type="string", length=50)
-     */
+    #[ORM\Column(type: 'string', length: 50)]
     private $moysklad;
-
     /**
      * @return int|null
      */

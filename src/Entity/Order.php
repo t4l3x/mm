@@ -1,356 +1,196 @@
 <?php
+
+
 declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Repository\OrderRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\OrderRepository")
- * @ORM\Table(name="oc_order")
- */
+#[ORM\Entity(repositoryClass: OrderRepository::class)]
+#[ORM\Table(name: 'oc_order')]
 class Order
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private $orderId;
 
+    // ... Add all other properties with appropriate attributes ...
 
-
-    // ... Add all other properties with appropriate annotations ...
-
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: 'integer')]
     private $invoiceNo;
 
-
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Customer")
-     * @ORM\JoinColumn(name="customer_id", referencedColumnName="customer_id")
-     */
+    #[ORM\ManyToOne(targetEntity: Customer::class)]
+    #[ORM\JoinColumn(name: 'customer_id', referencedColumnName: 'customer_id')]
     private $customerId;
 
     // ... Other methods ...
 
-    public function getCustomerId(): ?Customer
-    {
-        return $this->customerId;
-    }
-
-    public function setCustomerId(?Customer $customerId): self
-    {
-        $this->customerId = $customerId;
-        return $this;
-    }
-
-    /**
-     * @ORM\Column(type="string", length=26)
-     */
-    private $invoicePrefix;
+    #[ORM\Column(type: 'string', length: 26)]
+    private mixed $invoicePrefix;
 
     // ... Continue adding properties for each table column ...
 
-    /**
-     * @ORM\Column(type="decimal", scale=4, precision=15)
-     */
-    private $total;
+    #[ORM\Column(type: 'decimal', scale: 4, precision: 15)]
+    private mixed $total;
 
-    /**
-     * @ORM\Column(type="string", length=128)
-     */
-    private $paymentAddress_1;
+    #[ORM\Column(type: 'string', length: 128)]
+    private mixed $paymentAddress_1;
 
-    /**
-     * @ORM\Column(type="string", length=128, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 128, nullable: true)]
     private $paymentAddress_2;
 
-    /**
-     * @ORM\Column(type="string", length=128)
-     */
+    #[ORM\Column(type: 'string', length: 128)]
     private $paymentCity;
 
-    /**
-     * @ORM\Column(type="string", length=128)
-     */
+    #[ORM\Column(type: 'string', length: 128)]
     private $firstname;
 
-    /**
-     * @return mixed
-     */
-    public function getFirstname()
-    {
-        return $this->firstname;
-    }
+    #[ORM\Column(type: 'string', length: 128)]
+    private $lastname;
 
-    /**
-     * @param mixed $firstname
-     */
-    public function setFirstName($firstname): void
-    {
-        $this->firstname = $firstname;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getLastname()
-    {
-        return $this->Lastname;
-    }
-
-    /**
-     * @param mixed $Lastname
-     */
-    public function setLastname($Lastname): void
-    {
-        $this->Lastname = $Lastname;
-    }
-
-    /**
-     * @ORM\Column(type="string", length=128)
-     */
-    private $Lastname;
-
-    /**
-     * @ORM\Column(type="string", length=10)
-     */
+    #[ORM\Column(type: 'string', length: 10)]
     private $paymentPostcode;
 
-    /**
-     * @ORM\Column(type="string", length=128)
-     */
+    #[ORM\Column(type: 'string', length: 128)]
     private $paymentCountry;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: 'integer')]
     private $paymentCountryId;
 
-    /**
-     * @ORM\Column(type="string", length=128)
-     */
+    #[ORM\Column(type: 'string', length: 128)]
     private $paymentZone;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: 'integer')]
     private $paymentZoneId;
 
-    /**
-     * @ORM\Column(type="text")
-     */
+    #[ORM\Column(type: 'text')]
     private $paymentAddressFormat;
 
-    /**
-     * @ORM\Column(type="string", length=128)
-     */
+    #[ORM\Column(type: 'string', length: 128)]
     private $paymentMethod;
 
-    /**
-     * @ORM\Column(type="string", length=128)
-     */
+    #[ORM\Column(type: 'string', length: 128)]
     private $paymentCode;
 
-    /**
-     * @ORM\Column(type="string", length=32)
-     */
+    #[ORM\Column(type: 'string', length: 32)]
     private $shippingFirstname;
 
-    /**
-     * @ORM\Column(type="string", length=32)
-     */
+    #[ORM\Column(type: 'string', length: 32)]
     private $shippingLastname;
 
-    /**
-     * @ORM\Column(type="string", length=32, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 32, nullable: true)]
     private $shippingCompany;
 
-    /**
-     * @ORM\Column(type="string", length=128)
-     */
+    #[ORM\Column(type: 'string', length: 128)]
     private $shippingAddress_1;
 
-    /**
-     * @ORM\Column(type="string", length=128, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 128, nullable: true)]
     private $shippingAddress_2;
 
-    /**
-     * @ORM\Column(type="string", length=128)
-     */
+    #[ORM\Column(type: 'string', length: 128)]
     private $shippingCity;
 
-    /**
-     * @ORM\Column(type="string", length=10)
-     */
+    #[ORM\Column(type: 'string', length: 10)]
     private $shippingPostcode;
 
-    /**
-     * @ORM\Column(type="string", length=128)
-     */
+    #[ORM\Column(type: 'string', length: 128)]
     private $shippingCountry;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: 'integer')]
     private $shippingCountryId;
 
-    /**
-     * @ORM\Column(type="string", length=128)
-     */
+    #[ORM\Column(type: 'string', length: 128)]
     private $shippingZone;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: 'integer')]
     private $shippingZoneId;
 
-    /**
-     * @ORM\Column(type="text")
-     */
+    #[ORM\Column(type: 'text')]
     private $shippingAddressFormat;
 
-    /**
-     * @ORM\Column(type="string", length=128)
-     */
+    #[ORM\Column(type: 'string', length: 128)]
     private $shippingMethod;
 
-    /**
-     * @ORM\Column(type="string", length=128)
-     */
+    #[ORM\Column(type: 'string', length: 128)]
     private $shippingCode;
 
-    /**
-     * @ORM\Column(type="text")
-     */
+    #[ORM\Column(type: 'text')]
     private $comment;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: 'integer')]
     private $orderStatusId;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: 'integer')]
     private $affiliateId;
 
-    /**
-     * @ORM\Column(type="decimal", scale=4, precision=15)
-     */
+    #[ORM\Column(type: 'decimal', scale: 4, precision: 15)]
     private $commission;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: 'integer')]
     private $languageId;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: 'integer')]
     private $currencyId;
 
-    /**
-     * @ORM\Column(type="string", length=3)
-     */
+    #[ORM\Column(type: 'string', length: 3)]
     private $currencyCode;
 
-    /**
-     * @ORM\Column(type="decimal", scale=8, precision=15)
-     */
+    #[ORM\Column(type: 'decimal', scale: 8, precision: 15)]
     private $currencyValue;
 
-    /**
-     * @ORM\Column(type="string", length=40)
-     */
+    #[ORM\Column(type: 'string', length: 40)]
     private $ip;
 
-    /**
-     * @ORM\Column(type="string", length=40, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 40, nullable: true)]
     private $forwardedIp;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: 'string', length: 255)]
     private $userAgent;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: 'string', length: 255)]
     private $acceptLanguage;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
+    #[ORM\Column(type: 'datetime')]
     private $dateAdded;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
+    #[ORM\Column(type: 'datetime')]
     private $dateModified;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: 'integer')]
     private $operatorId;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: 'integer')]
     private $createOperatorId;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: 'integer')]
     private $courierId;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: 'string', length: 255)]
     private $moysklad;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
+    #[ORM\Column(type: 'datetime', nullable: true)]
     private $moyskladTime;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: 'string', length: 255)]
     private $time;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private $gmap;
 
-    /**
-     * @ORM\Column(type="string", length=222, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 222, nullable: true)]
     private $paymentAddressNew;
 
-    /**
-     * @ORM\Column(type="string", length=222, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 222, nullable: true)]
     private $longitude;
 
-    /**
-     * @ORM\Column(type="string", length=222, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 222, nullable: true)]
     private $latitude;
 
-    /**
-     * @ORM\Column(type="smallint")
-     */
+    #[ORM\Column(type: 'smallint')]
     private $paymentChecked;
-
 
     /**
      * @return mixed
@@ -366,6 +206,54 @@ class Order
     public function setOrderId($orderId): void
     {
         $this->orderId = $orderId;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCustomerId()
+    {
+        return $this->customerId;
+    }
+
+    /**
+     * @param mixed $customerId
+     */
+    public function setCustomerId($customerId): void
+    {
+        $this->customerId = $customerId;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getFirstname()
+    {
+        return $this->firstname;
+    }
+
+    /**
+     * @param mixed $firstname
+     */
+    public function setFirstname($firstname): void
+    {
+        $this->firstname = $firstname;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLastname()
+    {
+        return $this->lastname;
+    }
+
+    /**
+     * @param mixed $lastname
+     */
+    public function setLastname($lastname): void
+    {
+        $this->lastname = $lastname;
     }
 
     /**
