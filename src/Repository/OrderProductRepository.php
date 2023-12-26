@@ -45,4 +45,23 @@ class OrderProductRepository extends ServiceEntityRepository
 //            ->getOneOrNullResult()
 //        ;
 //    }
+
+
+    /**
+     * Fetch products related to a specific order.
+     *
+     * @param int $orderId The ID of the order.
+     * @return OrderProduct[] Returns an array of OrderProduct objects
+     */
+
+    public function findByOrderId(int $orderId): array
+    {
+        return $this->createQueryBuilder('op')
+            ->select('partial op.{id, name, price, total}', 'partial order.{orderId, total}')
+            ->leftJoin('op.order', 'order')
+            ->where('op.order = :orderId')
+            ->setParameter('orderId', $orderId)
+            ->getQuery()
+            ->getResult();
+    }
 }

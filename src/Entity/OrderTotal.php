@@ -2,10 +2,10 @@
 
 namespace App\Entity;
 
-use App\Repository\OcOrderTotalRepository;
+use App\Repository\OrderTotalRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: OcOrderTotalRepository::class)]
+#[ORM\Entity(repositoryClass: OrderTotalRepository::class)]
 #[ORM\Table(name: 'oc_order_total')]
 class OrderTotal
 {
@@ -15,6 +15,8 @@ class OrderTotal
     private $id;
 
     #[ORM\Column(type: 'integer')]
+    #[ORM\ManyToOne(targetEntity: Order::class)]
+    #[ORM\JoinColumn(name: 'order_id', referencedColumnName: 'order_id')]
     private $orderId;
 
     #[ORM\Column(type: 'string', length: 32)]

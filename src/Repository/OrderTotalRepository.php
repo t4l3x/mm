@@ -2,23 +2,24 @@
 
 namespace App\Repository;
 
-use App\Entity\OcOrderTotal;
+
+use App\Entity\OrderTotal;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @extends ServiceEntityRepository<OcOrderTotal>
  *
- * @method OcOrderTotal|null find($id, $lockMode = null, $lockVersion = null)
- * @method OcOrderTotal|null findOneBy(array $criteria, array $orderBy = null)
- * @method OcOrderTotal[]    findAll()
- * @method OcOrderTotal[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method OrderTotal|null find($id, $lockMode = null, $lockVersion = null)
+ * @method OrderTotal|null findOneBy(array $criteria, array $orderBy = null)
+ * @method OrderTotal[]    findAll()
+ * @method OrderTotal[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class OcOrderTotalRepository extends ServiceEntityRepository
+class OrderTotalRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, OcOrderTotal::class);
+        parent::__construct($registry, OrderTotal::class);
     }
 
 //    /**
@@ -45,4 +46,24 @@ class OcOrderTotalRepository extends ServiceEntityRepository
 //            ->getOneOrNullResult()
 //        ;
 //    }
+
+    /**
+     * Find totals by order ID
+     *
+     * @param int $orderId
+     * @return OrderTotal[]
+     */
+    public function findDiscountDataByOrderId(int $orderId): array
+    {
+        return $this->createQueryBuilder('ot')
+            ->select('ot.code, ot.value')
+            ->where('ot.orderId = :orderId')
+            ->setParameter('orderId', $orderId)
+            ->andWhere('ot.code IN (:codes)')
+            ->setParameter('codes', ['coupon', 'reward', 'sub_total'])
+            ->getQuery()
+            ->getArrayResult();
+    }
+
+
 }

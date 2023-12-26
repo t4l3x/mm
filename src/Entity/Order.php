@@ -6,6 +6,8 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Repository\OrderRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: OrderRepository::class)]
@@ -192,12 +194,33 @@ class Order
     #[ORM\Column(type: 'smallint')]
     private $paymentChecked;
 
+
+    /**
+     * @ORM\OneToMany(targetEntity=OrderProduct::class, mappedBy="order")
+     */
+    private ArrayCollection $orderProducts;
+
+
+    public function __construct()
+    {
+        $this->orderProducts = new ArrayCollection();
+    }
+
     /**
      * @return mixed
      */
     public function getOrderId()
     {
         return $this->orderId;
+    }
+
+
+    /**
+     * @return Collection
+     */
+    public function getOrderProducts(): Collection
+    {
+        return $this->orderProducts;
     }
 
     /**

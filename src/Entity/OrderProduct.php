@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\OrderProductRepository;
 use Doctrine\ORM\Mapping as ORM;
 
+
 #[ORM\Entity(repositoryClass: OrderProductRepository::class)]
 #[ORM\Table(name: 'oc_order_product')]
 class OrderProduct
@@ -14,11 +15,13 @@ class OrderProduct
     #[ORM\Column(name: 'order_product_id', type: 'integer')]
     private $id;
 
-    #[ORM\Column(type: 'integer')]
-    private $orderId;
+    #[ORM\ManyToOne(targetEntity: Order::class)]
+    #[ORM\JoinColumn(name: 'order_id', referencedColumnName: 'order_id')]
+    private $order;
 
-    #[ORM\Column(type: 'integer')]
-    private $productId;
+    #[ORM\ManyToOne(targetEntity: Product::class)]
+    #[ORM\JoinColumn(name: 'product_id', referencedColumnName: 'product_id')]
+    private $product;
 
     #[ORM\Column(type: 'string', length: 255)]
     private $name;
@@ -60,33 +63,32 @@ class OrderProduct
     /**
      * @return mixed
      */
-    public function getOrderId()
+    public function getOrder(): ?Order
     {
-        return $this->orderId;
+        return $this->order;
     }
 
-    /**
-     * @param mixed $orderId
-     */
-    public function setOrderId($orderId): void
+    public function setOrder(?Order $order): self
     {
-        $this->orderId = $orderId;
+        $this->order = $order;
+        return $this;
     }
 
     /**
      * @return mixed
      */
-    public function getProductId()
+    public function getProduct(): ?Product
     {
-        return $this->productId;
+        return $this->product;
     }
 
     /**
-     * @param mixed $productId
+     * @param mixed $product
      */
-    public function setProductId($productId): void
+    public function setProduct(?Product $product): self
     {
-        $this->productId = $productId;
+        $this->product = $product;
+        return $this;
     }
 
     /**

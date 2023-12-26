@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Entity\Order;
+use App\Repository\OrderProductRepository;
+use App\Repository\OrderTotalRepository;
 use App\Repository\OrderRepository;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
@@ -11,27 +13,24 @@ use Psr\Log\LoggerInterface;
 
 class OrderService
 {
-    private OrderRepository $orderRepository;
-    private MoySkladDataService $moyskladService;
-    private LoggerInterface $logger;
-    private EntityManagerInterface $entityManager;
 
-    private CustomerService $customerService;
     public function __construct(
-        OrderRepository $orderRepository,
-        MoySkladDataService $moyskladService,
-        LoggerInterface $logger,
-        EntityManagerInterface $entityManager,
-        CustomerService $customerService
-    ) {
-        $this->orderRepository = $orderRepository;
-        $this->moyskladService = $moyskladService;
-        $this->logger = $logger;
-        $this->entityManager = $entityManager;
-        $this->customerService = $customerService;
+        private OrderRepository        $orderRepository,
+        private OrderTotalRepository   $orderTotalRepository,
+        private OrderProductRepository $orderProductRepository,
+        private CustomerService        $customerService,
+        private MoySkladDataService    $moyskladService,
+        private OrderProductService    $orderProductService,
+        private LoggerInterface        $logger,
+        private EntityManagerInterface $entityManager,
+
+    )
+    {
+
     }
 
-    public function syncOrders(): void
+    public
+    function syncOrders(): void
     {
         /** @var Order[] $modifiedOrders */
         $modifiedOrders = $this->orderRepository->findModifiedOrders();
@@ -55,7 +54,11 @@ class OrderService
 //                    $this->logger->info('Order updated in Moysklad');
 //                }
 
-                $this->customerService->handleCustomer( $order);
+//                $this->customerService->handleCustomer( $order);
+//                $this->processOrderDiscounts($order);
+//                dd($this->processProducts($order));
+
+                dd($this->orderProductService->processOrderProducts($order));
             } catch (\Exception $e) {
                 $this->logger->error('Error updating order in Moysklad: ' . $e->getMessage());
             }
@@ -63,5 +66,37 @@ class OrderService
         }
     }
 
-    // Other methods...
+
+    public
+    function processOrderDiscounts(Order $order): array
+    {
+        // Fetch all related totals in one query using a custom method in OrderTotalRepository
+        $totals = $this->orderTotalRepository->findDiscountDataByOrderId($order->getOrderId());
+
+        $discountData = ['coupon' => 0, 'reward' => 0, 'sub_total' => 0];
+        foreach ($totals as $total) {
+            $discountData[$total['code']] = abs((float)$total['value']);
+        }
+
+        $totalReward = $discountData['coupon'] + $discountData['reward'];
+        $discount = $discountData['sub_total'] > 0
+            ? ($totalReward / $discountData['sub_total']) * 100
+            : 0;
+
+        return [
+            'discount' => $discount,
+            'coupon' => $discountData['coupon'],
+            'reward' => $discountData['reward']
+        ];
+    }
+
+
+    private
+    function processProducts(Order $order)
+    {
+        $orderProducts = $this->orderProductRepository->findByOrderId($order->getOrderId());
+
+        dd($orderProducts);
+    }
+// Other methods...
 }

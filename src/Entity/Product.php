@@ -126,13 +126,13 @@ class Product
     #[ORM\Column(type: 'boolean')]
     private $bag;
 
-    #[ORM\Column(type: 'decimal', precision: 15, scale: 4, nullable: true)]
+    #[ORM\Column(name: 'bagPrice', type: 'decimal', precision: 15, scale: 4, nullable: true)]
     private $bagPrice;
 
-    #[ORM\Column(type: 'decimal', precision: 15, scale: 8, nullable: true)]
+    #[ORM\Column(name: 'bagWeight',type: 'decimal', precision: 15, scale: 8, nullable: true)]
     private $bagWeight;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(name: 'bagName',type: 'string', length: 255, nullable: true)]
     private $bagName;
 
     #[ORM\Column(type: 'integer', nullable: true)]

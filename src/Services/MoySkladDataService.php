@@ -10,37 +10,49 @@ class MoySkladDataService
 
     public function __construct(MoyskladConnection $moyskladConnection)
     {
-        $this->moyskladConnection = $moyskladConnection;
+        $this->moyskladConnection = $moyskladConnection->getMoySkladInstance();
     }
 
     // Example method to fetch orders
     public function fetchOrders()
     {
-        $moysklad = $this->moyskladConnection->getMoySkladInstance();
+        $moysklad = $this->moyskladConnection;
         // Logic to fetch orders using $moysklad
     }
 
     // Method to fetch products
     public function fetchProducts()
     {
-        $moysklad = $this->moyskladConnection->getMoySkladInstance();
-
         try {
-            $response = $moysklad->query()
+            return $this->moyskladConnection->query()
                 ->entity()
                 ->product()
                 ->limit(100) // Adjust limit as needed
                 ->get();
 
-            // Assuming the products are in $response->rows based on the docs
-            $products = $response;
-
         } catch (\Exception $e) {
             // Handle exception
             throw new \Exception('Failed to fetch products: ' . $e->getMessage(), $e->getCode(), $e);
         }
+    }
 
-        dd( $products);
+
+    public function searchProducts($sku)
+    {
+        dd($sku);
+        try {
+
+            return $this->moyskladConnection->query()
+                ->entity()
+                ->product()
+                ->search($sku) // Adjust limit as needed
+                ->get();
+        } catch (\Exception $e) {
+            //
+            // Handle exception
+            throw new \Exception('Failed to fetch products: ' . $e->getMessage(), $e->getCode(), $e);
+        }
+
     }
 
     /**
@@ -52,16 +64,12 @@ class MoySkladDataService
      */
     public function getOrderData(string $orderId): mixed
     {
-        $moysklad = $this->moyskladConnection->getMoySkladInstance();
-
         try {
-            $response = $moysklad->query()
+            return $this->moyskladConnection->query()
                 ->entity()
                 ->customerorder()
                 ->byId($orderId)
                 ->get();
-
-            return $response;
 
         } catch (\Exception $e) {
             // Handle exception
@@ -79,16 +87,12 @@ class MoySkladDataService
      */
     public function updateOrderInMoysklad(string $orderId, array $updatedData)
     {
-        $moysklad = $this->moyskladConnection->getMoySkladInstance();
-
         try {
-            $response = $moysklad->query()
+            return $this->moyskladConnection->query()
                 ->entity()
                 ->customerorder()
                 ->byId($orderId)
                 ->update($updatedData);
-
-            return $response;
 
         } catch (\Exception $e) {
             // Handle exception
