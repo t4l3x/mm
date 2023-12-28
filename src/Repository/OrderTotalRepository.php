@@ -5,6 +5,7 @@ namespace App\Repository;
 
 use App\Entity\OrderTotal;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -63,6 +64,22 @@ class OrderTotalRepository extends ServiceEntityRepository
             ->setParameter('codes', ['coupon', 'reward', 'sub_total'])
             ->getQuery()
             ->getArrayResult();
+    }
+
+    /**
+     * @throws NonUniqueResultException
+     */
+    public function findShippingDetailsByOrderId(int $orderId): ?OrderTotal
+    {
+        return $this->createQueryBuilder('ot')
+            ->where('ot.orderId = :orderId')
+            ->andWhere('ot.code = :shippingCode')
+            ->setParameters([
+                'orderId' => $orderId,
+                'shippingCode' => 'shipping' // Assuming 'shipping' is the code for shipping details
+            ])
+            ->getQuery()
+            ->getOneOrNullResult();
     }
 
 

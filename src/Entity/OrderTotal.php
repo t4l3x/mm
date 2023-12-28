@@ -146,5 +146,5 @@ class OrderTotal
         $this->sortOrder = $sortOrder;
     }
 
-    // Add your getters and setters here
+
 }
