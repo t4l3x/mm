@@ -150,7 +150,7 @@ class MoySkladDataService
     public function getShipmentTemplate(string $orderHref): mixed
     {
         try {
-            $shipmentTemplate = $this->moyskladConnection->query()
+            return $this->moyskladConnection->query()
                 ->endpoint('entity')
                 ->method('demand')
                 ->method('new')
@@ -163,9 +163,7 @@ class MoySkladDataService
                             "mediaType" => "application/json"
                         ]
                     ]
-                ])->getResponseBody();
-
-            return $shipmentTemplate;
+                ]);
         } catch (\Exception $e) {
             throw new \Exception('Failed to get shipment template: ' . $e->getMessage(), $e->getCode(), $e);
         }
@@ -214,7 +212,7 @@ class MoySkladDataService
                             "mediaType" => "application/json"
                         ]
                     ]]
-                ])->getResponseBody();
+                ]);
         } catch (\Exception $e) {
             throw new \Exception('Failed to create payment document template: ' . $e->getMessage(), $e->getCode(), $e);
         }

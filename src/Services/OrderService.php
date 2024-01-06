@@ -141,7 +141,7 @@ class OrderService
             $shipmentTemplate['moment'] = $order->getDateModified()->format("Y-m-d H:i:s.v");
             $shipmentTemplate['store'] = [
                 'meta' => [
-                    'href' => 'https://api.moysklad.ru/api/remap/1.2/entity/store/dd049174-c992-11e8-9109-f8fc0027f234',
+                    'href' => "https://api.moysklad.ru/api/remap/1.2/entity/store/9e9439c1-9109-11ee-0a80-07180024b06a",
                     'metadataHref' => 'https://api.moysklad.ru/api/remap/1.2/entity/store/metadata',
                     'type' => 'store',
                     'mediaType' => 'application/json',
@@ -179,8 +179,7 @@ class OrderService
     function buildOrderDataForMoysklad(Order $order,$positions, $discounts): array
     {
         return [
-            'name' => (string) $order->getOrderId(),
-            'code' => (string) $order->getOrderId(),
+
             'moment' => $order->getDateModified()->format("Y-m-d H:i:s.v"),
             'applicable' => true,
             'agent' => $this->agentData['agent']['agent'],
@@ -196,7 +195,7 @@ class OrderService
 
             'store'	=> [
                 'meta' => [
-                    'href'			=> 'https://api.moysklad.ru/api/remap/1.2/entity/store/9e9439c1-9109-11ee-0a80-07180024b06a',
+                    'href'			=> "https://api.moysklad.ru/api/remap/1.2/entity/store/9e9439c1-9109-11ee-0a80-07180024b06a",
                     'metadataHref'	=> 'https://api.moysklad.ru/api/remap/1.2/entity/store/metadata',
                     'type'			=> 'store',
                     'mediaType'		=> 'application/json',
