@@ -8,12 +8,15 @@ use App\Repository\OrderProductRepository;
 use App\Repository\OrderTotalRepository;
 use App\Repository\OrderRepository;
 use DateTime;
+use DateTimeInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Psr\Log\LoggerInterface;
 
 class OrderService
 {
+
+    private mixed $agentData;
 
     private array $shippings = [
         'flatplusfree.free' 		=> '274b7085-ca0a-11e8-9ff4-315000957bad',
@@ -101,15 +104,20 @@ class OrderService
 //
 //                    $this->logger->info('Order updated in Moysklad');
 //                }
+                $customer =  $this->customerService->handleCustomer( $order);
 
-//                $this->customerService->handleCustomer( $order);
-//                $this->processOrderDiscounts($order);
-//                dd($this->processProducts($order));
+                $this->agentData['agent'] = $customer->getCustomData();
 
-//                $discounts = $this->processOrderDiscounts($order);
-//                $pos = $this->orderProductService->processOrderProducts($order, $discounts['discount']);
+
+                $discounts = $this->processOrderDiscounts($order);
+
+                $positions = $this->orderProductService->processOrderProducts($order, $discounts['discount']);
                 $shipping = $this->processShippingDetails($order);
-                dd($shipping);
+                $positions = array_merge($positions, $shipping);
+
+                $orderData = $this->buildOrderDataForMoysklad($order, $positions, $discounts);
+
+                $this->handleOrderUpdateInMoysklad($order, $orderData);
             } catch (\Exception $e) {
                 $this->logger->error('Error updating order in Moysklad: ' . $e->getMessage());
 
@@ -120,6 +128,85 @@ class OrderService
 
     }
 
+    public function handleOrderUpdateInMoysklad(Order $order, array $orderData): void
+    {
+        try {
+            // Create Customer Order in MoySklad
+            $apiOrder = $this->moyskladService->createCustomerOrder($orderData);
+
+            // Create Shipment Document based on the Order
+            $shipmentTemplate = $this->moyskladService->getShipmentTemplate($apiOrder['meta']['href']);
+
+
+            $shipmentTemplate['moment'] = $order->getDateModified()->format("Y-m-d H:i:s.v");
+            $shipmentTemplate['store'] = [
+                'meta' => [
+                    'href' => 'https://api.moysklad.ru/api/remap/1.2/entity/store/dd049174-c992-11e8-9109-f8fc0027f234',
+                    'metadataHref' => 'https://api.moysklad.ru/api/remap/1.2/entity/store/metadata',
+                    'type' => 'store',
+                    'mediaType' => 'application/json',
+                ]
+            ];
+
+            $this->moyskladService->createDemandDocument($shipmentTemplate);
+
+
+            // Create Payment Document
+            $paymentTemplate = $this->moyskladService->createPaymentDocumentTemplate($apiOrder['meta']['href']);
+
+
+            $paymentTemplate['moment'] = $order->getDateModified()->format("Y-m-d H:i:s.v");
+            $this->moyskladService->createPaymentDocumentTemplate($paymentTemplate);
+
+
+            // Update local database
+            $this->updateLocalDatabase($order, $apiOrder->id);
+
+            $this->logger->info('Order and associated documents updated in Moysklad');
+
+        } catch (\Exception $e) {
+            $this->logger->error('Error in Moysklad integration: ' . $e->getMessage());
+        }
+    }
+
+    private function updateLocalDatabase(Order $order, string $moyskladId): void
+    {
+        // Implement the logic to update your local database
+        // Example: $this->db->query("UPDATE orders SET moysklad_id = '$moyskladId', moysklad_time = CURRENT_TIMESTAMP WHERE id = {$order->getId()}");
+    }
+
+    private
+    function buildOrderDataForMoysklad(Order $order,$positions, $discounts): array
+    {
+        return [
+            'name' => (string) $order->getOrderId(),
+            'code' => (string) $order->getOrderId(),
+            'moment' => $order->getDateModified()->format("Y-m-d H:i:s.v"),
+            'applicable' => true,
+            'agent' => $this->agentData['agent']['agent'],
+            'positions' => $positions,
+
+            'organization'	=> [
+                'meta' => [
+                    'href'		=> 'https://api.moysklad.ru/api/remap/1.2/entity/organization/9e92e378-9109-11ee-0a80-07180024b068',
+                    'type'		=> 'organization',
+                    'mediaType'	=> 'application/json',
+                ]
+            ],
+
+            'store'	=> [
+                'meta' => [
+                    'href'			=> 'https://api.moysklad.ru/api/remap/1.2/entity/store/9e9439c1-9109-11ee-0a80-07180024b06a',
+                    'metadataHref'	=> 'https://api.moysklad.ru/api/remap/1.2/entity/store/metadata',
+                    'type'			=> 'store',
+                    'mediaType'		=> 'application/json',
+                ]
+            ],
+
+
+            'attributes' => $this->buildOrderAttributes($order, $discounts)
+        ];
+    }
     /**
      * @throws NonUniqueResultException
      */
@@ -140,7 +227,7 @@ class OrderService
                 'shipped'     => true,
                 'assortment'  => [
                     'meta' => [
-                        'href'       => 'https://online.moysklad.ru/api/remap/1.1/entity/product/' . $this->shippings[$order->getShippingCode()],
+                        'href'       => 'https://api.moysklad.ru/api/remap/1.2/entity/product/' . $this->shippings[$order->getShippingCode()],
                         'type'       => 'service',
                         'mediaType'  => 'application/json',
                     ]
@@ -176,6 +263,64 @@ class OrderService
             'reward' => $discountData['reward']
         ];
     }
+
+    private
+    function buildOrderAttributes(Order $order, $discounts): array
+    {
+
+
+        foreach ($this->attributes as $key => $code) {
+            $value = null;
+
+            // Special handling for 'comment' attribute
+            if ($key === 'comment') {
+                if (!$order->getCustomerId()) {
+                    $value = 'CUSTOMER: ' . $order->getFirstname() . ' ' . $order->getLastname() . PHP_EOL
+                        . 'PHONE: ' . $order->getTelephone() . PHP_EOL
+                        . 'E-MAIL: ' . $order->getEmail() . PHP_EOL
+                        . 'SHIPPING: ' . $order->getShippingAddress1() . PHP_EOL
+                        . $order->getShippingAddress2() . PHP_EOL
+                        . $order->getComment();
+                } else {
+                    $value = $order->getComment();
+                }
+            } else {
+                // Retrieve attribute value using a dynamic method call
+                $methodName = 'get' . ucfirst($key);
+                if (method_exists($order, $methodName)) {
+                    $value = $order->$methodName();
+                }
+            }
+
+            // Add to order_data attributes if value is not empty
+            if (!empty($value)) {
+                $attributesData['attributes'][] = [
+                    'id'    => $code,
+                    'value' => $value,
+                ];
+            }
+        }
+
+        // Add discount, reward, and counterparty attributes
+        $attributesData[] = ['id' => '01fc0c98-57a0-11ec-0a80-005f001a69c3', 'value' => $discounts['coupon']];
+        $attributesData[] = ['id' => '134f8819-57a0-11ec-0a80-058f00198e3f', 'value' => $discounts['reward']];
+        $attributesData[] = [
+            'id' => '2361043d-6808-11ec-0a80-0ba40097d488',
+            'type' => 'counterparty',
+            'value' => [
+                'meta' => [
+                    'href' => 'https://api.moysklad.ru/api/remap/1.2/entity/counterparty/16c6aaf7-1e96-11ec-0a80-0dd10032626a',
+                    'metadataHref' => 'https://api.moysklad.ru/api/remap/1.2/entity/counterparty/metadata',
+                    'type' => 'counterparty',
+                    'mediaType' => 'application/json',
+                    'uuidHref' => 'https://api.moysklad.ru/app/#company/edit?id=16c6aaf7-1e96-11ec-0a80-0dd10032626a'
+                ]
+            ]
+        ];
+
+        return $attributesData;
+    }
+
 
     /**
      * @throws \Exception

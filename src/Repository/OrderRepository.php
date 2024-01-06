@@ -59,7 +59,7 @@ class OrderRepository extends ServiceEntityRepository
             ->andWhere('o.dateAdded >= :startDate')
             ->andWhere('o.moysklad  IS NOT NULL')
             ->setParameter('startDate', new DateTime('2018-10-07'))
-            ->orderBy('o.orderId', 'ASC');
+            ->orderBy('o.orderId', 'DESC');
 
         return $qb->getQuery()->getResult();
     }

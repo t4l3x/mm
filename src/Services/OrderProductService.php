@@ -38,29 +38,31 @@ class OrderProductService
         $positions = [];
         $orderProducts = $this->orderProductRepository->findByOrderId($order->getOrderId());
 
-        foreach ($orderProducts as $orderProduct) {
-            // Fetch the Product ID safely
-            try {
-                $product = $orderProduct->getProduct();
-                $productId = $product ? $product->getId() : null;
+        // Fetch all product entities in one go if possible
+        $productIds = array_map(function($op) { return $op->getProduct()->getId(); }, $orderProducts);
+        $products = $this->productRepository->findBy(['id' => $productIds]);
 
-                if ($productId) {
-                    $productEntity = $this->productRepository->find($productId);
-
-                    if ($productEntity) {
-                        $this->syncProductWithMoysklad($productEntity);
-                        $positions[] = $this->buildPositionArray($productEntity, $orderProduct, $discount);
-                    } else {
-                        $this->logProductNotFound($productId);
-                    }
-                }
-            } catch (\Exception $e) {
-                $this->logger->error('Error processing product: ' . $e->getMessage());
-                // Optionally, log additional details or handle the exception further.
-            }
-
+        // Index products by ID for easy lookup
+        $indexedProducts = [];
+        foreach ($products as $product) {
+            $indexedProducts[$product->getId()] = $product;
         }
 
+        foreach ($orderProducts as $orderProduct) {
+            $productId = $orderProduct->getProduct()->getId();
+
+            if (isset($indexedProducts[$productId])) {
+                try {
+                    $this->syncProductWithMoysklad($indexedProducts[$productId]);
+                    $positions[] = $this->buildPositionArray($indexedProducts[$productId], $orderProduct, $discount);
+                } catch (\Exception $e) {
+                    $this->logger->error('Error processing product: ' . $e->getMessage());
+                    // Handle the exception as required
+                }
+            } else {
+                $this->logProductNotFound($productId);
+            }
+        }
 
         return $positions;
     }
@@ -77,7 +79,7 @@ class OrderProductService
     private function syncProductWithMoysklad(Product $product): void
     {
 
-        if (empty($product->getMoysklad())) {
+        if (!empty($product->getMoysklad())) {
 
             $this->logger->info('Syncing product with Moysklad', ['product_id' => $product->getId()]);
             // Assuming $product->getSku() returns the SKU of the product
@@ -108,14 +110,14 @@ class OrderProductService
 
         $productType = $product->getComponent() ? 'bundle' : 'product';
         return [
-            'quantity' => $orderProduct->getQuantity(),
-            'reserve' => $orderProduct->getQuantity(),
+            'quantity' => $orderProduct->getQuantity() ?? 1,
+            'reserve' => $orderProduct->getQuantity() ?? 1,
             'price' => $orderProduct->getPrice() * 100,
             'discount' => $discount,
             'vat' => 0,
             'assortment' => [
                 'meta' => [
-                    'href' => "https://online.moysklad.ru/api/remap/1.1/entity/$productType/{$product->getMoysklad()}",
+                    'href' => "https://api.moysklad.ru/api/remap/1.2/entity/$productType/{$product->getMoysklad()}",
                     'type' => $productType,
                     'mediaType' => 'application/json',
                 ]

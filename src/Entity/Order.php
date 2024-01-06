@@ -14,6 +14,23 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'oc_order')]
 class Order
 {
+    private array $customData = [];
+
+    /**
+     * @return array
+     */
+    public function getCustomData(): array
+    {
+        return $this->customData;
+    }
+
+    /**
+     * @param array $customData
+     */
+    public function setCustomData(array $customData): void
+    {
+        $this->customData =array_merge($customData,$this->getCustomData());
+    }
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
@@ -26,13 +43,16 @@ class Order
 
     #[ORM\ManyToOne(targetEntity: Customer::class)]
     #[ORM\JoinColumn(name: 'customer_id', referencedColumnName: 'customer_id')]
-    private $customerId;
+    private Customer $customerId;
 
     // ... Other methods ...
 
     #[ORM\Column(type: 'string', length: 26)]
     private mixed $invoicePrefix;
 
+
+    #[ORM\Column(type: 'string', length: 26)]
+    private mixed $shippingAddress_1;
     // ... Continue adding properties for each table column ...
 
     #[ORM\Column(type: 'decimal', scale: 4, precision: 15)]
@@ -86,8 +106,6 @@ class Order
     #[ORM\Column(type: 'string', length: 32, nullable: true)]
     private $shippingCompany;
 
-    #[ORM\Column(type: 'string', length: 128)]
-    private $shippingAddress_1;
 
     #[ORM\Column(type: 'string', length: 128, nullable: true)]
     private $shippingAddress_2;
@@ -118,6 +136,7 @@ class Order
 
     #[ORM\Column(type: 'string', length: 128)]
     private $shippingCode;
+
 
     #[ORM\Column(type: 'text')]
     private $comment;
@@ -151,6 +170,13 @@ class Order
 
     #[ORM\Column(type: 'string', length: 255)]
     private $userAgent;
+
+    #[ORM\Column(type: 'string', length: 255)]
+    private $telephone;
+
+    #[ORM\Column(type: 'string', length: 255)]
+    private $email;
+
 
     #[ORM\Column(type: 'string', length: 255)]
     private $acceptLanguage;
@@ -209,6 +235,28 @@ class Order
     /**
      * @return mixed
      */
+
+    public function getAttributeValueByKey($key)
+    {
+        // Mapping the key to a getter method or property
+        $mapping = [
+            'shipping_address_1' => 'getShippingAddress1',
+            'shipping_method' => 'getShippingMethod',
+            'payment_method' => 'getPaymentMethod',
+            'comment' => 'getComment',
+            // ... other mappings
+        ];
+
+        if (array_key_exists($key, $mapping)) {
+            $methodName = $mapping[$key];
+            if (method_exists($this, $methodName)) {
+                return $this->$methodName();
+            }
+        }
+
+        // Return null or a default value if the key doesn't match
+        return null;
+    }
     public function getOrderId()
     {
         return $this->orderId;
@@ -538,9 +586,9 @@ class Order
     /**
      * @return mixed
      */
-    public function getShippingAddress1()
+    public function getShippingAddress1(): mixed
     {
-        return $this->shippingAddress1;
+        return $this->shippingAddress_1;
     }
 
     /**
@@ -548,7 +596,7 @@ class Order
      */
     public function setShippingAddress1($shippingAddress1): void
     {
-        $this->shippingAddress1 = $shippingAddress1;
+        $this->shippingAddress_1 = $shippingAddress1;
     }
 
     /**
@@ -1129,5 +1177,36 @@ class Order
 
     // ... Add here getters and setters for all properties
 
+    /**
+     * @return mixed
+     */
+    public function getTelephone()
+    {
+        return $this->telephone;
+    }
+
+    /**
+     * @param mixed $telephone
+     */
+    public function setTelephone($telephone): void
+    {
+        $this->telephone = $telephone;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getEmail()
+    {
+        return $this->email;
+    }
+
+    /**
+     * @param mixed $email
+     */
+    public function setEmail($email): void
+    {
+        $this->email = $email;
+    }
 
 }
