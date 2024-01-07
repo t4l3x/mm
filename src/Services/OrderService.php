@@ -156,7 +156,7 @@ class OrderService
 
 
             $paymentTemplate['moment'] = $order->getDateModified()->format("Y-m-d H:i:s.v");
-            $this->moyskladService->createPaymentDocumentTemplate($paymentTemplate);
+
 
 
             // Update local database
