@@ -148,12 +148,13 @@ class OrderService
                 ]
             ];
 
-            $this->moyskladService->createDemandDocument($shipmentTemplate);
+            $doc = $this->moyskladService->createDemandDocument($shipmentTemplate);
 
 
             // Create Payment Document
             $paymentTemplate = $this->moyskladService->createPaymentDocumentTemplate($apiOrder['meta']['href']);
 
+            $this->moyskladService->createPaymentDocument($paymentTemplate);
 
             $paymentTemplate['moment'] = $order->getDateModified()->format("Y-m-d H:i:s.v");
 
