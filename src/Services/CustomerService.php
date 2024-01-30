@@ -101,7 +101,7 @@ class CustomerService
 //                            throw new \Exception('Failed to update customer tags: ' . $e->getMessage(), $e->getCode(), $e);
 //                        }
 //                    }
-                    $this->updateCustomerState($customer->getMoysklad(),'https://api.moysklad.ru/api/remap/1.2/entity/counterparty/metadata/states/9edb10b9-9109-11ee-0a80-07180024b08d');
+                    $this->updateCustomerState($customer->getMoysklad());
 
                     // Update logic in Moysklad if needed
                 }

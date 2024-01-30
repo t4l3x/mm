@@ -12,7 +12,6 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Entity\Order;
-use App\Entity\OrderProduct;
 use App\Entity\Product;
 use App\Repository\OrderProductRepository;
 use App\Repository\ProductRepository;

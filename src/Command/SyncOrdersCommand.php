@@ -29,15 +29,17 @@ class SyncOrdersCommand extends Command
     {
         $this
             // You can add more arguments or options as needed
-            ->setDescription('Synchronizes modified orders with Moysklad');
+            ->setDescription('Synchronizes modified orders with Moysklad')
+            ->addArgument('startDate', InputArgument::REQUIRED, 'The start date for modified orders');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
+        $startDate = $input->getArgument('startDate');
 
         try {
-            $this->orderService->syncOrders();
+            $this->orderService->syncOrders($startDate); // assuming syncOrders now accepts startDate
             $io->success('Modified orders have been synchronized successfully with Moysklad.');
         } catch (\Exception $e) {
             $io->error('An error occurred during synchronization: ' . $e);

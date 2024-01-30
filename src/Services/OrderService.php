@@ -80,11 +80,14 @@ class OrderService
 
     }
 
+    /**
+     * @throws \Exception
+     */
     public
-    function syncOrders(): void
+    function syncOrders(string $startDate): void
     {
         /** @var Order[] $modifiedOrders */
-        $modifiedOrders = $this->orderRepository->findModifiedOrders();
+        $modifiedOrders = $this->orderRepository->findModifiedOrders($startDate);
 
         foreach ($modifiedOrders as $order) {
             try {
@@ -172,6 +175,7 @@ class OrderService
 
     private function updateLocalDatabase(Order $order, string $moyskladId): void
     {
+        $this->orderRepository->updateLocalDatabase($order, $moyskladId);
         // Implement the logic to update your local database
         // Example: $this->db->query("UPDATE orders SET moysklad_id = '$moyskladId', moysklad_time = CURRENT_TIMESTAMP WHERE id = {$order->getId()}");
     }
@@ -188,7 +192,7 @@ class OrderService
 
             'organization'	=> [
                 'meta' => [
-                    'href'		=> 'https://api.moysklad.ru/api/remap/1.2/entity/organization/9e92e378-9109-11ee-0a80-07180024b068',
+                    'href'		=> 'https://api.moysklad.ru/api/remap/1.2/entity/organization/dd0307dd-c992-11e8-9109-f8fc0027f232',
                     'type'		=> 'organization',
                     'mediaType'	=> 'application/json',
                 ]
@@ -196,7 +200,7 @@ class OrderService
 
             'store'	=> [
                 'meta' => [
-                    'href'			=> "https://api.moysklad.ru/api/remap/1.2/entity/store/9e9439c1-9109-11ee-0a80-07180024b06a",
+                    'href'			=> "https://api.moysklad.ru/api/remap/1.2/entity/store/dd049174-c992-11e8-9109-f8fc0027f234",
                     'metadataHref'	=> 'https://api.moysklad.ru/api/remap/1.2/entity/store/metadata',
                     'type'			=> 'store',
                     'mediaType'		=> 'application/json',

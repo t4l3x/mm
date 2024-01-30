@@ -6,13 +6,19 @@ namespace App\Repository;
 use App\Entity\Order;
 use DateTime;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 
 class OrderRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    private $entityManager;
+
+    public function __construct(ManagerRegistry $registry, EntityManagerInterface $entityManager)
+
     {
         parent::__construct($registry, Order::class);
+        $this->entityManager = $entityManager;
+
     }
 
     /**
@@ -51,17 +57,35 @@ class OrderRepository extends ServiceEntityRepository
 
 // ...
 
-    public function findModifiedOrders(): array
+    /**
+     * @throws \Exception
+     */
+    public function findModifiedOrders(string $startDate): array
     {
+        $startDateDateTime = new DateTime($startDate);
+
         $qb = $this->createQueryBuilder('o')
             ->where('o.moyskladTime IS NOT NULL')
             ->andWhere('o.dateModified != o.moyskladTime')
             ->andWhere('o.dateAdded >= :startDate')
             ->andWhere('o.moysklad  IS NOT NULL')
-            ->setParameter('startDate', new DateTime('2018-10-07'))
+            ->setParameter('startDate', $startDateDateTime)
             ->orderBy('o.orderId', 'DESC');
 
         return $qb->getQuery()->getResult();
+    }
+
+    public function updateLocalDatabase(Order $order, string $moyskladId): void
+    {
+        try {
+            $order->setMoysklad($moyskladId);
+            $order->setMoyskladTime(new \DateTime());
+
+            $this->entityManager->persist($order);
+            $this->entityManager->flush();
+        } catch (\Exception $e) {
+            // Handle the exception as per your requirement
+        }
     }
 
 }
