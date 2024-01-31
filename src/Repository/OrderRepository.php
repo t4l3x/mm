@@ -75,6 +75,20 @@ class OrderRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
+    public function findOrdersByOrderId( $orderId): array
+    {
+        $qb = $this->createQueryBuilder('o')
+            ->where('o.moyskladTime IS NOT NULL')
+            ->andWhere('o.dateModified != o.moyskladTime')
+            ->andWhere('o.orderId = :orderId')
+            ->andWhere('o.moysklad IS NOT NULL')
+            ->setParameter('orderId', $orderId)
+            ->orderBy('o.orderId', 'DESC');
+
+        return $qb->getQuery()->getResult();
+    }
+
+
     public function updateLocalDatabase(Order $order, string $moyskladId): void
     {
         try {

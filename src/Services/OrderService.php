@@ -89,48 +89,23 @@ class OrderService
         /** @var Order[] $modifiedOrders */
         $modifiedOrders = $this->orderRepository->findModifiedOrders($startDate);
 
-        foreach ($modifiedOrders as $order) {
-            try {
-//                $this->logger->info("*** UPDATE MODIFIED ORDER {$order->getOrderId()} *** " . date('Y-m-d H:i') . " ****");
-//
-//                $apiOrder = $this->moyskladService->getOrderData('074bd85c-992a-11ee-0a80-0cd30001c20c');
-//
-//                if ($apiOrder) {
-//                    // Define the updated data for the order
-//                    $updatedData = []; // Populate this array with the data that needs to be updated
-//
-//                    // Update logic for the order in Moysklad
-//                    $this->moyskladService->updateOrderInMoysklad('074bd85c-992a-11ee-0a80-0cd30001c20c', $updatedData);
-//
-//
-//                    $this->entityManager->flush();
-//
-//                    $this->logger->info('Order updated in Moysklad');
-//                }
-                $customer =  $this->customerService->handleCustomer( $order);
 
-                $this->agentData['agent'] = $customer->getCustomData();
-
-
-                $discounts = $this->processOrderDiscounts($order);
-
-                $positions = $this->orderProductService->processOrderProducts($order, $discounts['discount']);
-                $shipping = $this->processShippingDetails($order);
-                $positions = array_merge($positions, $shipping);
-
-                $orderData = $this->buildOrderDataForMoysklad($order, $positions, $discounts);
-
-                $this->handleOrderUpdateInMoysklad($order, $orderData);
-            } catch (\Exception $e) {
-                $this->logger->error('Error updating order in Moysklad: ' . $e->getMessage());
-
-            }
-            break;
-        }
+        $this->extracted($modifiedOrders);
 
 
     }
 
+
+    public
+    function syncOrder($order_id): void
+    {
+        /** @var Order[] $modifiedOrders */
+        $modifiedOrders = $this->orderRepository->findOrdersByOrderId($order_id);
+
+        $this->extracted($modifiedOrders);
+
+
+    }
     public function handleOrderUpdateInMoysklad(Order $order, array $orderData): void
     {
         try {
@@ -323,6 +298,52 @@ class OrderService
         ];
 
         return $attributesData;
+    }
+
+    /**
+     * @param array $modifiedOrders
+     * @return void
+     */
+    protected function extracted(array $modifiedOrders): void
+    {
+        foreach ($modifiedOrders as $order) {
+            try {
+//                $this->logger->info("*** UPDATE MODIFIED ORDER {$order->getOrderId()} *** " . date('Y-m-d H:i') . " ****");
+//
+//                $apiOrder = $this->moyskladService->getOrderData('074bd85c-992a-11ee-0a80-0cd30001c20c');
+//
+//                if ($apiOrder) {
+//                    // Define the updated data for the order
+//                    $updatedData = []; // Populate this array with the data that needs to be updated
+//
+//                    // Update logic for the order in Moysklad
+//                    $this->moyskladService->updateOrderInMoysklad('074bd85c-992a-11ee-0a80-0cd30001c20c', $updatedData);
+//
+//
+//                    $this->entityManager->flush();
+//
+//                    $this->logger->info('Order updated in Moysklad');
+//                }
+                $customer = $this->customerService->handleCustomer($order);
+
+                $this->agentData['agent'] = $customer->getCustomData();
+
+
+                $discounts = $this->processOrderDiscounts($order);
+
+                $positions = $this->orderProductService->processOrderProducts($order, $discounts['discount']);
+                $shipping = $this->processShippingDetails($order);
+                $positions = array_merge($positions, $shipping);
+
+                $orderData = $this->buildOrderDataForMoysklad($order, $positions, $discounts);
+
+                $this->handleOrderUpdateInMoysklad($order, $orderData);
+            } catch (\Exception $e) {
+                $this->logger->error('Error updating order in Moysklad: ' . $e->getMessage());
+
+            }
+
+        }
     }
 
 
