@@ -88,7 +88,7 @@ class OrderService
     {
         /** @var Order[] $modifiedOrders */
         $modifiedOrders = $this->orderRepository->findModifiedOrders($startDate);
-
+        dd($modifiedOrders);
         if(empty($modifiedOrders)){
             echo "Order id tapilmadi\n";
             exit;

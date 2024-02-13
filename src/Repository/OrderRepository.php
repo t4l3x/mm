@@ -53,10 +53,6 @@ class OrderRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    // OrderRepository.php
-
-// ...
-
     /**
      * @throws \Exception
      */
@@ -65,28 +61,51 @@ class OrderRepository extends ServiceEntityRepository
         $startDateDateTime = new DateTime($startDate);
 
         $qb = $this->createQueryBuilder('o')
-            ->where('o.moyskladTime IS NOT NULL')
-            ->andWhere('o.dateModified != o.moyskladTime')
-            ->andWhere('o.dateAdded >= :startDate')
-            ->andWhere('o.moysklad  IS NOT NULL')
+            ->where('o.dateAdded >= :startDate')
+            ->andWhere('o.orderStatusId IN (:statusIds)')
+            ->andWhere('o.moysklad = :emptyString')
+            ->andWhere('o.customerId != :customerId')
             ->setParameter('startDate', $startDateDateTime)
+            ->setParameter('statusIds', [1, 2, 5, 17, 18, 19])
+            ->setParameter('emptyString', '') // Ensure this is an empty string
+            ->setParameter('customerId', 3137)
             ->orderBy('o.orderId', 'DESC');
 
         return $qb->getQuery()->getResult();
     }
 
-    public function findOrdersByOrderId( $orderId): array
+//    public function findModifiedOrders(string $startDate): array
+//    {
+//        $startDateDateTime = new DateTime($startDate);
+//
+//        $qb = $this->createQueryBuilder('o')
+//            ->where('o.moyskladTime IS NOT NULL')
+//            ->andWhere('o.dateModified != o.moyskladTime')
+//            ->andWhere('o.dateAdded >= :startDate')
+//            ->andWhere('o.moysklad  IS NOT NULL')
+//            ->setParameter('startDate', $startDateDateTime)
+//            ->orderBy('o.orderId', 'DESC');
+//
+//        return $qb->getQuery()->getResult();
+//    }
+
+    public function findOrdersByOrderId($orderId): array
     {
         $qb = $this->createQueryBuilder('o')
-            ->where('o.moyskladTime IS NOT NULL')
-            ->andWhere('o.dateModified != o.moyskladTime')
-            ->andWhere('o.orderId = :orderId')
-            ->andWhere('o.moysklad IS NOT NULL')
+            ->where('o.orderId = :orderId')
+            ->andWhere('o.orderStatusId IN (:statusIds)')
+            ->andWhere('o.moysklad = :emptyString')
+            ->andWhere('o.customerId != :customerId')
             ->setParameter('orderId', $orderId)
+            ->setParameter('statusIds', [1, 2, 5, 17, 18, 19])
+            ->setParameter('emptyString', '') // Ensure this is an empty string
+            ->setParameter('customerId', 3137)
             ->orderBy('o.orderId', 'DESC');
 
         return $qb->getQuery()->getResult();
     }
+
+
 
 
     public function updateLocalDatabase(Order $order, string $moyskladId): void
