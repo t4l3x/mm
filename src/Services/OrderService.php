@@ -148,7 +148,8 @@ class OrderService
 
 
             // Update local database
-            $this->updateLocalDatabase($order, $apiOrder->id);
+
+            $this->updateLocalDatabase($order, $apiOrder['id']);
 
             $this->logger->info('Order and associated documents updated in Moysklad');
 
