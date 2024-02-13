@@ -89,6 +89,10 @@ class OrderService
         /** @var Order[] $modifiedOrders */
         $modifiedOrders = $this->orderRepository->findModifiedOrders($startDate);
 
+        if(empty($modifiedOrders)){
+            echo "Order id tapilmadi\n";
+            exit;
+        }
 
         $this->extracted($modifiedOrders);
 
@@ -101,6 +105,11 @@ class OrderService
     {
         /** @var Order[] $modifiedOrders */
         $modifiedOrders = $this->orderRepository->findOrdersByOrderId($order_id);
+
+        if(empty($modifiedOrders)){
+            echo "Order id tapilmadi\n";
+            exit;
+        }
 
         $this->extracted($modifiedOrders);
 
@@ -183,7 +192,7 @@ class OrderService
             ],
 
 
-            'attributes' => $this->buildOrderAttributes($order, $discounts)
+//            'attributes' => $this->buildOrderAttributes($order, $discounts)
         ];
     }
     /**
