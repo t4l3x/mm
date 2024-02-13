@@ -108,7 +108,7 @@ class OrderProductService
 
 
         $productType = $product->getComponent() ? 'bundle' : 'product';
-
+        $product = $product->getMoysklad();
         return [
             'quantity' => $orderProduct->getQuantity() ?? 1,
             'reserve' => $orderProduct->getQuantity() ?? 1,
@@ -118,7 +118,7 @@ class OrderProductService
             'assortment' => [
                 'meta' => [
 
-                    'href' => "https://api.moysklad.ru/api/remap/1.2/entity/product/c8bebfe4-9109-11ee-0a80-0b720022500d",
+                    'href' => "https://api.moysklad.ru/api/remap/1.2/entity/product/{$productType}/{$product}",
                     'type' => $productType,
                     'mediaType' => 'application/json',
                 ]
