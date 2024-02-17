@@ -33,7 +33,7 @@ class CustomerRepository extends ServiceEntityRepository
     public function getCustomerById(int $customerId): ?Customer
     {
         return $this->createQueryBuilder('c')
-            ->andWhere('c.customer_id = :id')
+            ->andWhere('c.id = :id')
             ->setParameter('id', $customerId)
             ->getQuery()
             ->getOneOrNullResult();

@@ -5,7 +5,9 @@ namespace App\Services;
 
 use App\Entity\Customer;
 use App\Entity\Order;
+use App\Repository\CustomerRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\NonUniqueResultException;
 use Psr\Log\LoggerInterface;
 
 class CustomerService
@@ -14,29 +16,35 @@ class CustomerService
     private $logger;
     private $moyskladConnection;
 
-    public function __construct(EntityManagerInterface $entityManager, LoggerInterface $logger, MoyskladConnection $moyskladConnection)
+    private $customerRepository;
+
+    public function __construct(CustomerRepository $customerRepository, EntityManagerInterface $entityManager, LoggerInterface $logger, MoyskladConnection $moyskladConnection)
     {
         $this->entityManager = $entityManager;
         $this->logger = $logger;
         $this->moyskladConnection = $moyskladConnection->getMoySkladInstance();
+        $this->customerRepository = $customerRepository;
     }
 
 
-    /** Todo: Fix line 47 improve logic */
+    /** Todo: Fix line 47 improve logic
+     * @throws NonUniqueResultException
+     */
     public function handleCustomer(Order $order)
     {
 
         $customer = $order->getCustomerId();
 
         $anonymId = 2922;
-
-        // Check if customer is anonymous
-        if (!$customer || $customer->getId() == $anonymId) {
-            $this->logger->info('Handling anonymous customer');
+        if(!$customer){
+            $customer = $this->customerRepository->getCustomerById(2922);
             $order->setCustomData(['anonym' => $anonymId]);
-            $customer = $order->getCustomData()['anonym'];
+
+            $order->setCustomerId($customer->getId());
 
         }
+        // Check if customer is anonymous
+
 
         if ($customer) {
 
@@ -109,6 +117,7 @@ class CustomerService
                 $this->entityManager->flush();
 
                 $this->logger->info('Customer processed in MoySklad: ' . $customer->getMoysklad());
+
                 return $order;
             } catch (\Exception $e) {
                 $this->logger->error('Failed to process customer in MoySklad: ' . $e->getMessage());

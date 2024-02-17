@@ -604,15 +604,15 @@ class Order
      */
     public function getShippingAddress2()
     {
-        return $this->shippingAddress2;
+        return $this->shippingAddress_2;
     }
 
     /**
      * @param mixed $shippingAddress2
      */
-    public function setShippingAddress2($shippingAddress2): void
+    public function setShippingAddress2(mixed $shippingAddress2): void
     {
-        $this->shippingAddress2 = $shippingAddress2;
+        $this->shippingAddress_2 = $shippingAddress2;
     }
 
     /**
