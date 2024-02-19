@@ -33,6 +33,8 @@ class OrderService
         // ... other mappings
     ];
 
+
+
     private int $anonymId = 2922;
 
     private array $orderStates = [
@@ -192,8 +194,14 @@ class OrderService
                 ]
             ],
 
-
-            'attributes' => $this->buildOrderAttributes($order, $discounts)
+            'state'	=> [
+                'meta' => [
+                    'href'	=> 'https://api.moysklad.ru/api/remap/1.2/entity/customerorder/metadata/states/' . $this->orderStates[ $order->getOrderStatusId() ],
+                    'type'		=> 'state',
+                    'mediaType'	=> 'application/json',
+                ]
+            ],
+            $this->buildOrderAttributes($order, $discounts)
         ];
     }
 
@@ -275,13 +283,7 @@ class OrderService
 
 
             } else {
-
-                // Retrieve attribute value using a dynamic method call
-                $methodName = 'get' . ucfirst($key);
-                echo $methodName . "\n";
-                if (method_exists($order, $methodName)) {
-                    $value[$key] = $order->$methodName();
-                }
+                $value[$key] = $order->getAttributeValueByKey($key);
             }
 
             // Add to order_data attributes if value is not empty
@@ -296,9 +298,9 @@ class OrderService
         }
 
 //        // Add discount, reward, and counterparty attributes
-        $attributesData[] = ['id' => '01fc0c98-57a0-11ec-0a80-005f001a69c3', 'value' => $discounts['coupon']];
-        $attributesData[] = ['id' => '134f8819-57a0-11ec-0a80-058f00198e3f', 'value' => $discounts['reward']];
-        $attributesData[] = [
+        $attributesData['attributes'][] = ['id' => '01fc0c98-57a0-11ec-0a80-005f001a69c3', 'value' => $discounts['coupon']];
+        $attributesData['attributes'][] = ['id' => '134f8819-57a0-11ec-0a80-058f00198e3f', 'value' => $discounts['reward']];
+        $attributesData['attributes'][]  = [
             'id' => '2361043d-6808-11ec-0a80-0ba40097d488',
             'type' => 'counterparty',
             'value' => [
@@ -315,6 +317,7 @@ class OrderService
 
 
         return $attributesData;
+
     }
 
     /**
@@ -355,6 +358,7 @@ class OrderService
                 $orderData = $this->buildOrderDataForMoysklad($order, $positions, $discounts);
 
                 $this->handleOrderUpdateInMoysklad($order, $orderData);
+
             } catch (\Exception $e) {
                 $this->logger->error('Error updating order in Moysklad: ' . $e->getMessage());
 

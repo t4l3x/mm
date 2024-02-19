@@ -36,6 +36,7 @@ class CustomerService
         $customer = $order->getCustomerId();
 
         $anonymId = 2922;
+
         if(!$customer){
             $customer = $this->customerRepository->getCustomerById(2922);
             $order->setCustomData(['anonym' => $anonymId]);
