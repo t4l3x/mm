@@ -13,7 +13,7 @@ use Psr\Log\LoggerInterface;
 class CustomerService
 {
     private $entityManager;
-    private $logger;
+    private $special_channel;
     private $moyskladConnection;
 
     private $customerRepository;
@@ -21,7 +21,7 @@ class CustomerService
     public function __construct(CustomerRepository $customerRepository, EntityManagerInterface $entityManager, LoggerInterface $logger, MoyskladConnection $moyskladConnection)
     {
         $this->entityManager = $entityManager;
-        $this->logger = $logger;
+        $this->special_channel = $logger;
         $this->moyskladConnection = $moyskladConnection->getMoySkladInstance();
         $this->customerRepository = $customerRepository;
     }
@@ -57,7 +57,7 @@ class CustomerService
 
                 if (empty($customer->getMoysklad())) {
 
-                    $this->logger->info('Creating customer in MoySklad');
+                    $this->special_channel->info('Creating customer in MoySklad');
                     $response = $this->moyskladConnection->query()
                         ->entity()
                         ->counterparty()
@@ -83,7 +83,7 @@ class CustomerService
 
                     $customer->setMoysklad($response['id']);
                 } else {
-                    $this->logger->info('Updating customer in MoySklad');
+                    $this->special_channel->info('Updating customer in MoySklad');
 
 
                     $order->setCustomData(
@@ -96,20 +96,20 @@ class CustomerService
                         ]
                     );
 
-//                    if (empty($customer->tag)) {
-//                        try {
-//                            $response = $this->moyskladConnection->query()
-//                                ->entity()
-//                                ->counterparty()
-//                                ->byId($customer->getMoysklad())
-//                                ->update(['tags' => ['онлайн_покупатели']]);
-//
-//                            // Handle the response as needed
-//                        } catch (\Exception $e) {
-//                            // Handle exception
-//                            throw new \Exception('Failed to update customer tags: ' . $e->getMessage(), $e->getCode(), $e);
-//                        }
-//                    }
+                    if (empty($customer->tag)) {
+                        try {
+                            $response = $this->moyskladConnection->query()
+                                ->entity()
+                                ->counterparty()
+                                ->byId($customer->getMoysklad())
+                                ->update(['tags' => ['онлайн_покупатели']]);
+
+                            // Handle the response as needed
+                        } catch (\Exception $e) {
+                            // Handle exception
+                            throw new \Exception('Failed to update customer tags: ' . $e->getMessage(), $e->getCode(), $e);
+                        }
+                    }
                     $this->updateCustomerState($customer->getMoysklad());
 
                     // Update logic in Moysklad if needed
@@ -117,11 +117,13 @@ class CustomerService
 
                 $this->entityManager->flush();
 
-                $this->logger->info('Customer processed in MoySklad: ' . $customer->getMoysklad());
+                $this->special_channel->info('Customer processed in MoySklad: ' . $customer->getMoysklad());
 
                 return $order;
             } catch (\Exception $e) {
-                $this->logger->error('Failed to process customer in MoySklad: ' . $e->getMessage());
+
+                $this->special_channel->error('Failed to process customer in MoySklad: ' . $e->getMessage() . "\n" . $customer?->getId() ?? 'not found',['channel' => 'special_channel']);
+
             }
         }
     }

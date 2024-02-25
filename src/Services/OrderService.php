@@ -12,6 +12,7 @@ use DateTimeInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class OrderService
 {
@@ -85,20 +86,25 @@ class OrderService
     /**
      * @throws \Exception
      */
-    public
-    function syncOrders(string $startDate): void
+    public function syncOrders(string $startDate, OutputInterface $output): void
     {
-        /** @var Order[] $modifiedOrders */
-        $modifiedOrders = $this->orderRepository->findModifiedOrders($startDate);
+        $currentPage = 1;
+        $pageSize = 5;
+        $totalOrders = $this->orderRepository->countModifiedOrders($startDate); // Assuming you have a method to count total modified orders
 
-        if (empty($modifiedOrders)) {
-            echo "Order id tapilmadi\n";
-            exit;
-        }
+        do {
+            $modifiedOrders = $this->orderRepository->findModifiedOrders($startDate, $currentPage, $pageSize);
 
-        $this->extracted($modifiedOrders);
+            if (!empty($modifiedOrders)) {
+                $this->extracted($modifiedOrders);
 
-
+                $currentPage++;
+                $progress = min(100, (int) (($currentPage - 1) * $pageSize / $totalOrders * 100));
+                $output->writeln("Processed $progress% of orders.");
+                sleep(5); // Sleep for 3 seconds between each batch
+            }
+            exit();
+        } while (!empty($modifiedOrders));
     }
 
 
@@ -349,22 +355,7 @@ class OrderService
     {
         foreach ($modifiedOrders as $order) {
             try {
-//                $this->logger->info("*** UPDATE MODIFIED ORDER {$order->getOrderId()} *** " . date('Y-m-d H:i') . " ****");
-//
-//                $apiOrder = $this->moyskladService->getOrderData('074bd85c-992a-11ee-0a80-0cd30001c20c');
-//
-//                if ($apiOrder) {
-//                    // Define the updated data for the order
-//                    $updatedData = []; // Populate this array with the data that needs to be updated
-//
-//                    // Update logic for the order in Moysklad
-//                    $this->moyskladService->updateOrderInMoysklad('074bd85c-992a-11ee-0a80-0cd30001c20c', $updatedData);
-//
-//
-//                    $this->entityManager->flush();
-//
-//                    $this->logger->info('Order updated in Moysklad');
-//                }
+
                 $customer = $this->customerService->handleCustomer($order);
 
                 $this->agentData['agent'] = $customer->getCustomData();
@@ -381,8 +372,8 @@ class OrderService
                 $this->handleOrderUpdateInMoysklad($order, $orderData);
 
             } catch (\Exception $e) {
-                $this->logger->error('Error updating order in Moysklad: ' . $e->getMessage());
-
+                $this->logger->error('Error updating order in Moysklad: ' . $e->getMessage() . "\n\n Order id: " . $order?->getOrderId() ?? 'not found',['channel' => 'special_channel']);
+                continue;
             }
 
         }

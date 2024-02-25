@@ -56,7 +56,7 @@ class OrderRepository extends ServiceEntityRepository
     /**
      * @throws \Exception
      */
-    public function findModifiedOrders(string $startDate): array
+    public function findModifiedOrders(string $startDate, int $page, int $pageSize): array
     {
         $startDateDateTime = new DateTime($startDate);
 
@@ -69,7 +69,9 @@ class OrderRepository extends ServiceEntityRepository
             ->setParameter('statusIds', [1, 2, 5, 17, 18, 19])
             ->setParameter('emptyString', '') // Ensure this is an empty string
             ->setParameter('customerId', 3137)
-            ->orderBy('o.orderId', 'DESC');
+            ->orderBy('o.orderId', 'DESC')
+            ->setFirstResult(($page - 1) * $pageSize)
+            ->setMaxResults($pageSize);
 
         return $qb->getQuery()->getResult();
     }
@@ -119,6 +121,24 @@ class OrderRepository extends ServiceEntityRepository
         } catch (\Exception $e) {
             // Handle the exception as per your requirement
         }
+    }
+
+    public function countModifiedOrders(string $startDate): int
+    {
+        $startDateDateTime = new DateTime($startDate);
+
+        $qb = $this->createQueryBuilder('o')
+            ->select('COUNT(o.orderId)')
+            ->where('o.dateAdded >= :startDate')
+            ->andWhere('o.orderStatusId IN (:statusIds)')
+            ->andWhere('o.moysklad = :emptyString')
+            ->andWhere('o.customerId != :customerId')
+            ->setParameter('startDate', $startDateDateTime)
+            ->setParameter('statusIds', [1, 2, 5, 17, 18, 19])
+            ->setParameter('emptyString', '') // Ensure this is an empty string
+            ->setParameter('customerId', 3137);
+
+        return (int) $qb->getQuery()->getSingleScalarResult();
     }
 
 }

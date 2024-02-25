@@ -39,7 +39,7 @@ class SyncOrdersCommand extends Command
         $startDate = $input->getArgument('startDate');
 
         try {
-            $this->orderService->syncOrders($startDate); // assuming syncOrders now accepts startDate
+            $this->orderService->syncOrders($startDate, $output); // Pass $output to the syncOrders method
             $io->success('Modified orders have been synchronized successfully with Moysklad.');
         } catch (\Exception $e) {
             $io->error('An error occurred during synchronization: ' . $e);
