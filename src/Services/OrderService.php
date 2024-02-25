@@ -34,7 +34,6 @@ class OrderService
     ];
 
 
-
     private int $anonymId = 2922;
 
     private array $orderStates = [
@@ -194,15 +193,95 @@ class OrderService
                 ]
             ],
 
-            'state'	=> [
+            'state' => [
                 'meta' => [
-                    'href'	=> 'https://api.moysklad.ru/api/remap/1.2/entity/customerorder/metadata/states/' . $this->orderStates[ $order->getOrderStatusId() ],
-                    'type'		=> 'state',
-                    'mediaType'	=> 'application/json',
+                    'href' => 'https://api.moysklad.ru/api/remap/1.2/entity/customerorder/metadata/states/' . $this->orderStates[$order->getOrderStatusId()],
+                    'type' => 'state',
+                    'mediaType' => 'application/json',
                 ]
             ],
-            $this->buildOrderAttributes($order, $discounts)
+            'attributes' => $this->buildOrderAttributes($order, $discounts)
         ];
+    }
+
+    private
+    function buildOrderAttributes(Order $order, $discounts): array
+    {
+
+
+        foreach ($this->attributes as $key => $code) {
+
+            $value = null;
+
+            // Special handling for 'comment' attribute
+            if ($key == 'comment' && $order->getCustomerId()->getId() == $this->anonymId) {
+
+                $value[$key] = 'CUSTOMER: ' . $order->getFirstname() . ' ' . $order->getLastname() . PHP_EOL
+                    . 'PHONE: ' . $order->getTelephone() . PHP_EOL
+                    . 'E-MAIL: ' . $order->getEmail() . PHP_EOL
+                    . 'SHIPPING: ' . $order->getShippingAddress1() . PHP_EOL
+                    . $order->getShippingAddress2() . PHP_EOL
+                    . $order->getComment();
+
+
+            } else {
+                $value[$key] = $order->getAttributeValueByKey($key);
+            }
+
+            // Add to order_data attributes if value is not empty
+
+            if (!empty($value)) {
+                $attributesData[] = [
+                    'meta' => [
+                        "href" => "https://api.moysklad.ru/api/remap/1.2/entity/customerorder/metadata/attributes/{$code}",
+                        'id' => "{$code}",
+                        'type' => 'attributemetadata',
+                        'mediaType' => 'application/json',
+                    ],
+
+                    'value' => $value[$key],
+                ];
+            }
+
+        }
+
+        $attributesData[] = [
+            'meta' => [
+                "href" => "https://api.moysklad.ru/api/remap/1.2/entity/customerorder/metadata/attributes/01fc0c98-57a0-11ec-0a80-005f001a69c3",
+                'id' => "01fc0c98-57a0-11ec-0a80-005f001a69c3",
+                'type' => 'attributemetadata',
+                'mediaType' => 'application/json',
+            ],
+            'value' => $discounts['coupon']
+        ];
+
+        $attributesData[] = [
+            'meta' => [
+                "href" => "https://api.moysklad.ru/api/remap/1.2/entity/customerorder/metadata/attributes/134f8819-57a0-11ec-0a80-058f00198e3f",
+                'id' => "134f8819-57a0-11ec-0a80-058f00198e3f",
+                'type' => 'attributemetadata',
+                'mediaType' => 'application/json',
+            ],
+            'value' => $discounts['reward']
+        ];
+
+//        $attributesData[] = [
+//            'id' => '2361043d-6808-11ec-0a80-0ba40097d488',
+//            'type' => 'counterparty',
+//            'value' => [
+//                'meta' => [
+//                    'href' => 'https://api.moysklad.ru/api/remap/1.2/entity/counterparty/16c6aaf7-1e96-11ec-0a80-0dd10032626a',
+//                    'metadataHref' => 'https://api.moysklad.ru/api/remap/1.2/entity/counterparty/metadata',
+//                    'type' => 'counterparty',
+//                    'mediaType' => 'application/json',
+//                    'uuidHref' => 'https://api.moysklad.ru/app/#company/edit?id=16c6aaf7-1e96-11ec-0a80-0dd10032626a'
+//                ]
+//            ]
+//        ];
+
+
+        return $attributesData;
+
     }
 
     /**
@@ -260,64 +339,6 @@ class OrderService
             'coupon' => $discountData['coupon'],
             'reward' => $discountData['reward']
         ];
-    }
-
-    private
-    function buildOrderAttributes(Order $order, $discounts): array
-    {
-
-
-        foreach ($this->attributes as $key => $code) {
-
-            $value = null;
-
-            // Special handling for 'comment' attribute
-            if ($key == 'comment' && $order->getCustomerId()->getId() == $this->anonymId) {
-
-                $value[$key] = 'CUSTOMER: ' . $order->getFirstname() . ' ' . $order->getLastname() . PHP_EOL
-                    . 'PHONE: ' . $order->getTelephone() . PHP_EOL
-                    . 'E-MAIL: ' . $order->getEmail() . PHP_EOL
-                    . 'SHIPPING: ' . $order->getShippingAddress1() . PHP_EOL
-                    . $order->getShippingAddress2() . PHP_EOL
-                    . $order->getComment();
-
-
-            } else {
-                $value[$key] = $order->getAttributeValueByKey($key);
-            }
-
-            // Add to order_data attributes if value is not empty
-
-            if (!empty($value)) {
-                $attributesData['attributes'][] = [
-                    'id' => $code,
-                    'value' => $value[$key],
-                ];
-            }
-
-        }
-
-//        // Add discount, reward, and counterparty attributes
-        $attributesData['attributes'][] = ['id' => '01fc0c98-57a0-11ec-0a80-005f001a69c3', 'value' => $discounts['coupon']];
-        $attributesData['attributes'][] = ['id' => '134f8819-57a0-11ec-0a80-058f00198e3f', 'value' => $discounts['reward']];
-        $attributesData['attributes'][]  = [
-            'id' => '2361043d-6808-11ec-0a80-0ba40097d488',
-            'type' => 'counterparty',
-            'value' => [
-                'meta' => [
-                    'href' => 'https://api.moysklad.ru/api/remap/1.2/entity/counterparty/16c6aaf7-1e96-11ec-0a80-0dd10032626a',
-                    'metadataHref' => 'https://api.moysklad.ru/api/remap/1.2/entity/counterparty/metadata',
-                    'type' => 'counterparty',
-                    'mediaType' => 'application/json',
-                    'uuidHref' => 'https://api.moysklad.ru/app/#company/edit?id=16c6aaf7-1e96-11ec-0a80-0dd10032626a'
-                ]
-            ]
-        ];
-
-
-
-        return $attributesData;
-
     }
 
     /**
