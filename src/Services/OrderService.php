@@ -103,7 +103,7 @@ class OrderService
                 $output->writeln("Processed $progress% of orders.");
                 sleep(5); // Sleep for 3 seconds between each batch
             }
-            exit();
+
         } while (!empty($modifiedOrders));
     }
 
