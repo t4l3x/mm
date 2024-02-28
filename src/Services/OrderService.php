@@ -99,7 +99,7 @@ class OrderService
                 $this->extracted($modifiedOrders);
 
                 $currentPage++;
-                $progress = min(100, (int) (($currentPage - 1) * $pageSize / $totalOrders * 100));
+                $progress = min(100, (int)(($currentPage - 1) * $pageSize / $totalOrders * 100));
                 $output->writeln("Processed $progress% of orders.");
                 sleep(5); // Sleep for 3 seconds between each batch
             }
@@ -357,9 +357,10 @@ class OrderService
             try {
 
                 $customer = $this->customerService->handleCustomer($order);
-
+                if ($customer?->getCustomData() === null) {
+                    continue;
+                }
                 $this->agentData['agent'] = $customer->getCustomData();
-
 
                 $discounts = $this->processOrderDiscounts($order);
 
@@ -372,7 +373,7 @@ class OrderService
                 $this->handleOrderUpdateInMoysklad($order, $orderData);
 
             } catch (\Exception $e) {
-                $this->logger->error('Error updating order in Moysklad: ' . $e->getMessage() . "\n\n Order id: " . $order?->getOrderId() ?? 'not found',['channel' => 'special_channel']);
+                $this->logger->error('Error updating order in Moysklad: ' . $e->getMessage() . "\n\n Order id: " . $order?->getOrderId() ?? 'not found', ['channel' => 'special_channel']);
                 continue;
             }
 

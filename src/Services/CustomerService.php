@@ -29,6 +29,7 @@ class CustomerService
 
     /** Todo: Fix line 47 improve logic
      * @throws NonUniqueResultException
+     * @throws \Exception
      */
     public function handleCustomer(Order $order)
     {
@@ -37,7 +38,7 @@ class CustomerService
 
         $anonymId = 2922;
 
-        if(!$customer){
+        if (!$customer) {
             $customer = $this->customerRepository->getCustomerById(2922);
             $order->setCustomData(['anonym' => $anonymId]);
 
@@ -53,78 +54,55 @@ class CustomerService
             $customerName = $customer->getFirstName() . ' ' . $customer->getLastName();
             $actualAddress = $customer->getId() == $anonymId ? 'Zoomagazin.az' : $order->getShippingAddress1();
 
-            try {
 
-                if (empty($customer->getMoysklad())) {
+            if (empty($customer->getMoysklad())) {
 
-                    $this->special_channel->info('Creating customer in MoySklad');
-                    $response = $this->moyskladConnection->query()
-                        ->entity()
-                        ->counterparty()
-                        ->create([
-                            'code' => (string)$customerId,
-                            'externalCode' => (string)$customerId,
-                            'name' => $customerName,
-                            'email' => $customer->getEmail(),
-                            'phone' => $customer->getTelephone(),
-                            'actualAddress' => $actualAddress,
-                            'tags' => ['онлайн_покупатели']
-                        ]);
-
-                    $order->setCustomData(
-                        [
-                            'agent' => ['meta' => [
-                                'href' => $response['meta']['href'],
-                                'type' => 'counterparty',
-                                "mediaType" => "application/json"
-                            ]]
-                        ]
-                    );
-
-                    $customer->setMoysklad($response['id']);
-                } else {
-                    $this->special_channel->info('Updating customer in MoySklad');
+                $this->extracted($customerId, $customerName, $customer, $actualAddress, $order);
+            } else {
+                $this->special_channel->info('Updating customer in MoySklad');
 
 
-                    $order->setCustomData(
-                        [
-                            'agent' => ['meta' => [
-                                'href' => "https://api.moysklad.ru/api/remap/1.2/entity/counterparty/{$customer->getMoysklad()}",
-                                'type' => 'counterparty',
-                                "mediaType" => "application/json"
-                            ]]
-                        ]
-                    );
+                $order->setCustomData(
+                    [
+                        'agent' => ['meta' => [
+                            'href' => "https://api.moysklad.ru/api/remap/1.2/entity/counterparty/{$customer->getMoysklad()}",
+                            'type' => 'counterparty',
+                            "mediaType" => "application/json"
+                        ]]
+                    ]
+                );
 
-                    if (empty($customer->tag)) {
-                        try {
-                            $response = $this->moyskladConnection->query()
-                                ->entity()
-                                ->counterparty()
-                                ->byId($customer->getMoysklad())
-                                ->update(['tags' => ['онлайн_покупатели']]);
+                if (empty($customer->tag)) {
+                    try {
+                        $response = $this->moyskladConnection->query()
+                            ->entity()
+                            ->counterparty()
+                            ->byId($customer->getMoysklad())
+                            ->update(['tags' => ['онлайн_покупатели']]);
 
-                            // Handle the response as needed
-                        } catch (\Exception $e) {
-                            // Handle exception
-                            throw new \Exception('Failed to update customer tags: ' . $e->getMessage(), $e->getCode(), $e);
+                        // Handle the response as needed
+
+                    } catch (\Exception $e) {
+                        // Handle exception
+                        $this->special_channel->error('Failed to update customer tags: ' . $e->getCode() . ' ', ['channel' => 'special_channel']);
+                        if ($e->getCode() == 404) {
+                            $this->extracted($customerId, $customerName, $customer, $actualAddress, $order);
+
                         }
                     }
-                    $this->updateCustomerState($customer->getMoysklad());
-
-                    // Update logic in Moysklad if needed
                 }
 
-                $this->entityManager->flush();
+                $this->updateCustomerState($customer->getMoysklad());
 
-                $this->special_channel->info('Customer processed in MoySklad: ' . $customer->getMoysklad());
-
-                return $order;
-            } catch (\Exception $e) {
-
-                $this->special_channel->error('Failed to process customer in MoySklad: ' . $e->getMessage() . "\n" . $customer?->getId() ?? 'not found',['channel' => 'special_channel']);
-
+                // Update logic in Moysklad if needed
             }
+
+            $this->entityManager->flush();
+
+            $this->special_channel->info('Customer processed in MoySklad: ' . $customer->getMoysklad());
+
+            return $order;
+
         }
     }
 
@@ -157,5 +135,43 @@ class CustomerService
 
             throw new \Exception('Failed to update customer state: ' . $e->getMessage(), $e->getCode(), $e);
         }
+    }
+
+    /**
+     * @param int|null $customerId
+     * @param string $customerName
+     * @param mixed $customer
+     * @param mixed $actualAddress
+     * @param Order $order
+     * @return void
+     * @throws \Evgeek\Moysklad\Exceptions\RequestException
+     */
+    protected function extracted(?int $customerId, string $customerName, mixed $customer, mixed $actualAddress, Order $order): void
+    {
+
+        $response = $this->moyskladConnection->query()
+            ->entity()
+            ->counterparty()
+            ->create([
+                'code' => (string)$customerId,
+                'externalCode' => (string)$customerId,
+                'name' => $customerName,
+                'email' => $customer->getEmail(),
+                'phone' => $customer->getTelephone(),
+                'actualAddress' => $actualAddress,
+                'tags' => ['онлайн_покупатели']
+            ]);
+
+        $order->setCustomData(
+            [
+                'agent' => ['meta' => [
+                    'href' => $response['meta']['href'],
+                    'type' => 'counterparty',
+                    "mediaType" => "application/json"
+                ]]
+            ]
+        );
+
+        $customer->setMoysklad($response['id']);
     }
 }
