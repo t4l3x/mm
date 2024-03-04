@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Entity\Order;
+use App\Entity\OrderProduct;
 use App\Entity\Product;
 use App\Repository\OrderProductRepository;
 use App\Repository\ProductRepository;
@@ -103,15 +104,15 @@ class OrderProductService
         }
     }
 
-    private function buildPositionArray(Product $product, $orderProduct, float $discount): array
+    private function buildPositionArray(Product $product, OrderProduct $orderProduct, float $discount): array
     {
 
 
         $productType = $product->getComponent() ? 'bundle' : 'product';
         $product = $product->getMoysklad();
         return [
-            'quantity' => $orderProduct->getQuantity() ?? 1,
-            'reserve' => $orderProduct->getQuantity() ?? 1,
+            'quantity' => floatval($orderProduct->getQuantity()) ?? 1,
+            'reserve' => floatval($orderProduct->getQuantity()) ?? 1,
             'price' => $orderProduct->getPrice() * 100,
             'discount' => $discount,
             'vat' => 0,

@@ -57,7 +57,7 @@ class OrderProductRepository extends ServiceEntityRepository
     public function findByOrderId(int $orderId): array
     {
         return $this->createQueryBuilder('op')
-            ->select('partial op.{id, name, price, total}', 'partial order.{orderId, total}')
+            ->select('partial op.{id, name, price, total,quantity}', 'partial order.{orderId, total}')
             ->leftJoin('op.order', 'order')
             ->where('op.order = :orderId')
             ->setParameter('orderId', $orderId)
