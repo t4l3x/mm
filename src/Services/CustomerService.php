@@ -38,11 +38,12 @@ class CustomerService
 
         $anonymId = 2922;
 
-        if (!$customer) {
+        if (!$customer || $customer->getId() == null) {
             $customer = $this->customerRepository->getCustomerById(2922);
             $order->setCustomData(['anonym' => $anonymId]);
 
-            $order->setCustomerId($customer->getId());
+            $order->setCustomerId($customer);
+
 
         }
         // Check if customer is anonymous

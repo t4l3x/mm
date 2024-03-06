@@ -176,7 +176,8 @@ class OrderService
     function buildOrderDataForMoysklad(Order $order, $positions, $discounts): array
     {
         return [
-
+            'name' => (string)$order->getOrderId(),
+            'code' => (string)$order->getOrderId(),
             'moment' => $order->getDateModified()->format("Y-m-d H:i:s.v"),
             'applicable' => true,
             'agent' => $this->agentData['agent']['agent'],
