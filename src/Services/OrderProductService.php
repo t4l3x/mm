@@ -111,7 +111,22 @@ class OrderProductService
 
         $productType = $product->getComponent() ? 'bundle' : 'product';
         $product = $product->getMoysklad();
-        echo  "https://api.moysklad.ru/api/remap/1.2/entity/".$productType.'/'.$product."\n";
+        var_dump([
+            'quantity' => floatval($orderProduct->getQuantity()) ?? 1,
+            'reserve' => floatval($orderProduct->getQuantity()) ?? 1,
+            'price' => $orderProduct->getPrice() * 100,
+            'discount' => $discount,
+            'vat' => 0,
+            'assortment' => [
+                'meta' => [
+                    'href' => "https://api.moysklad.ru/api/remap/1.2/entity/".$productType.'/'.$product,
+                    "metadataHref" => "https://api.moysklad.ru/api/remap/1.2/entity/product/metadata",
+                    'type' => $productType,
+                    'mediaType' => 'application/json',
+                ]
+            ]
+        ]);
+        echo "\n";
         return [
             'quantity' => floatval($orderProduct->getQuantity()) ?? 1,
             'reserve' => floatval($orderProduct->getQuantity()) ?? 1,
