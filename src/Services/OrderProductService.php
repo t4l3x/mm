@@ -118,7 +118,6 @@ class OrderProductService
             'vat' => 0,
             'assortment' => [
                 'meta' => [
-
                     'href' => "https://api.moysklad.ru/api/remap/1.2/entity/product/{$productType}/{$product}",
                     'type' => $productType,
                     'mediaType' => 'application/json',
