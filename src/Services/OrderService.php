@@ -297,6 +297,7 @@ class OrderService
     private
     function processShippingDetails(Order $order): array
     {
+        dd($this->shippings[$order->getShippingCode()]);
         $shippingDetails = $this->orderTotalRepository->findShippingDetailsByOrderId($order->getOrderId());
         $positions = [];
 
