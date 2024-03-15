@@ -113,7 +113,7 @@ class OrderProductService
 
         $productType = $product->getComponent() ? 'bundle' : 'product';
         $product = $product->getMoysklad();
-
+        echo  "https://api.moysklad.ru/api/remap/1.2/entity/".$productType.'/'.$product."\n";
         return [
             'quantity' => floatval($orderProduct->getQuantity()) ?? 1,
             'reserve' => floatval($orderProduct->getQuantity()) ?? 1,
