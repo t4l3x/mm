@@ -107,7 +107,7 @@ class OrderProductService
     private function buildPositionArray(Product $product, OrderProduct $orderProduct, float $discount): array
     {
 
-
+        dd($product);
         $productType = $product->getComponent() ? 'bundle' : 'product';
         $product = $product->getMoysklad();
         return [
