@@ -55,9 +55,8 @@ class OrderProductService
                 try {
                     $this->syncProductWithMoysklad($indexedProducts[$productId]);
                     usleep(5000);
-                    var_dump($indexedProducts[$productId]);
-                    echo "\n";
-                    $positions[] = $this->buildPositionArray($indexedProducts[$productId], $orderProduct, $discount);
+                    if($indexedProducts[$productId]->getMoysklad() !== null)
+                        $positions[] = $this->buildPositionArray($indexedProducts[$productId], $orderProduct, $discount);
                 } catch (\Exception $e) {
                     $this->logger->error('Error processing product: ' . $e->getMessage());
                     // Handle the exception as required
@@ -114,7 +113,7 @@ class OrderProductService
 
         $productType = $product->getComponent() ? 'bundle' : 'product';
         $product = $product->getMoysklad();
-        echo  "https://api.moysklad.ru/api/remap/1.2/entity/".$productType.'/'.$product."\n";
+
         return [
             'quantity' => floatval($orderProduct->getQuantity()) ?? 1,
             'reserve' => floatval($orderProduct->getQuantity()) ?? 1,
