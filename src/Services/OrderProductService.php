@@ -107,7 +107,6 @@ class OrderProductService
     private function buildPositionArray(Product $product, OrderProduct $orderProduct, float $discount): array
     {
 
-
         $productType = $product->getComponent() ? 'bundle' : 'product';
         $product = $product->getMoysklad();
 
@@ -120,6 +119,7 @@ class OrderProductService
             'assortment' => [
                 'meta' => [
                     'href' => "https://api.moysklad.ru/api/remap/1.2/entity/{$productType}/{$product}",
+                    "metadataHref" => "https://api.moysklad.ru/api/remap/1.2/entity/product/metadata",
                     'type' => $productType,
                     'mediaType' => 'application/json',
                 ]
