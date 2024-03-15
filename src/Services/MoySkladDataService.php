@@ -110,7 +110,7 @@ class MoySkladDataService
     public function createCustomerOrder(array $orderData): mixed
     {
 
-        dd($orderData);
+
         try {
             return $this->moyskladConnection->query()
                 ->entity()
