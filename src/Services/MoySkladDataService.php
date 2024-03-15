@@ -117,7 +117,7 @@ class MoySkladDataService
                 ->customerorder()
                 ->create($orderData);
         } catch (\Exception $e) {
-            throw new \Exception('Failed to create customer order: ' . ' order id ' .$orderData['name'] ?? '@'.' '. $e->getMessage(), $e->getCode(), $e);
+            throw new \Exception('Failed to create customer order: ' . $e->getMessage() . ' order id ' .$orderData['name'] ?? '@', $e->getCode(), $e);
         }
     }
 
