@@ -310,7 +310,13 @@ class OrderService
                 'discount' => 0,
                 'vat' => 0,
                 'shipped' => true,
-
+                'assortment' => [
+                    'meta' => [
+                        'href' => 'https://api.moysklad.ru/api/remap/1.2/entity/product/' . $this->shippings[$order->getShippingCode()],
+                        'type' => 'service',
+                        'mediaType' => 'application/json',
+                    ]
+                ]
             ];
             $positions[] = $shippingPosition;
         } else {

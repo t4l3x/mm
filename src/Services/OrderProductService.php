@@ -115,14 +115,8 @@ class OrderProductService
             'reserve' => floatval($orderProduct->getQuantity()) ?? 1,
             'price' => $orderProduct->getPrice() * 100,
             'discount' => $discount,
-            'vat' => 0,
-            'assortment' => [
-                'meta' => [
-                    'href' => "https://api.moysklad.ru/api/remap/1.2/entity/product/{$productType}/{$product}",
-                    'type' => $productType,
-                    'mediaType' => 'application/json',
-                ]
-            ]
+            'vat' => 0
+
         ];
     }
 }
