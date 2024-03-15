@@ -39,7 +39,9 @@ class OrderProductService
         $orderProducts = $this->orderProductRepository->findByOrderId($order->getOrderId());
 
         // Fetch all product entities in one go if possible
-        $productIds = array_map(function($op) { return $op->getProduct()->getId(); }, $orderProducts);
+        $productIds = array_map(function ($op) {
+            return $op->getProduct()->getId();
+        }, $orderProducts);
         $products = $this->productRepository->findBy(['id' => $productIds]);
 
         // Index products by ID for easy lookup
@@ -55,8 +57,9 @@ class OrderProductService
                 try {
                     $this->syncProductWithMoysklad($indexedProducts[$productId]);
                     usleep(5000);
-                    if($indexedProducts[$productId]->getMoysklad() !== null)
+                    if (!empty($indexedProducts[$productId]->getMoysklad())) {
                         $positions[] = $this->buildPositionArray($indexedProducts[$productId], $orderProduct, $discount);
+                    }
                 } catch (\Exception $e) {
                     $this->logger->error('Error processing product: ' . $e->getMessage());
                     // Handle the exception as required
@@ -110,10 +113,9 @@ class OrderProductService
     {
 
 
-
         $productType = $product->getComponent() ? 'bundle' : 'product';
         $product = $product->getMoysklad();
-        echo  "https://api.moysklad.ru/api/remap/1.2/entity/".$productType.'/'.$product."\n";
+        echo "https://api.moysklad.ru/api/remap/1.2/entity/" . $productType . '/' . $product . "\n";
         return [
             'quantity' => floatval($orderProduct->getQuantity()) ?? 1,
             'reserve' => floatval($orderProduct->getQuantity()) ?? 1,
@@ -122,7 +124,7 @@ class OrderProductService
             'vat' => 0,
             'assortment' => [
                 'meta' => [
-                    'href' => "https://api.moysklad.ru/api/remap/1.2/entity/".$productType.'/'.$product,
+                    'href' => "https://api.moysklad.ru/api/remap/1.2/entity/" . $productType . '/' . $product,
                     "metadataHref" => "https://api.moysklad.ru/api/remap/1.2/entity/product/metadata",
                     'type' => $productType,
                     'mediaType' => 'application/json',
