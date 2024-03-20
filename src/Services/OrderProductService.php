@@ -56,7 +56,10 @@ class OrderProductService
             if (!empty($indexedProducts[$productId])) {
                 try {
                     $this->syncProductWithMoysklad($indexedProducts[$productId]);
-                    $positions[] = $this->buildPositionArray($indexedProducts[$productId], $orderProduct, $discount);
+                    usleep(5000);
+                    if (!empty($indexedProducts[$productId]->getMoysklad())) {
+                        $positions[] = $this->buildPositionArray($indexedProducts[$productId], $orderProduct, $discount);
+                    }
                 } catch (\Exception $e) {
                     $this->logger->error('Error processing product: ' . $e->getMessage());
                     // Handle the exception as required
