@@ -90,11 +90,11 @@ class OrderProductService
 
             if (!empty($response->rows)) {
                 foreach ($response->rows as $mp) {
-
+                    dd($product->getSku(),$mp['code']);
                     if ($product->getSku() == $mp['code']) {
                         $product->setMoysklad($mp['id']);
                         // Save the updated product to the database
-                        dd($mp);
+
                         $this->orderProductRepository->save($product);
                         $this->logger->info('Product synced with Moysklad', ['moysklad_id' => $mp['id']]);
                         break;
