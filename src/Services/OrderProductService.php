@@ -90,7 +90,7 @@ class OrderProductService
 
             if (!empty($response['rows'])) {
                 foreach ($response['rows'] as $mp) {
-                    dd($product->getSku(),$mp['code']);
+
                     if ($product->getSku() == $mp['code']) {
                         $product->setMoysklad($mp['id']);
                         // Save the updated product to the database
