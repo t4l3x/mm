@@ -88,8 +88,8 @@ class OrderProductService
 
             $response = $this->moysklad->searchProducts($product->getSku());
 
-            if (!empty($response->rows)) {
-                foreach ($response->rows as $mp) {
+            if (!empty($response['rows'])) {
+                foreach ($response['rows'] as $mp) {
                     dd($product->getSku(),$mp['code']);
                     if ($product->getSku() == $mp['code']) {
                         $product->setMoysklad($mp['id']);
