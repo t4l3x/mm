@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\OrderProduct;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -16,36 +17,13 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class OrderProductRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    private $entityManager;
+
+    public function __construct(ManagerRegistry $registry, EntityManagerInterface $entityManager)
     {
         parent::__construct($registry, OrderProduct::class);
+        $this->entityManager = $entityManager;
     }
-
-//    /**
-//     * @return OrderProduct[] Returns an array of OrderProduct objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('o')
-//            ->andWhere('o.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('o.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
-
-//    public function findOneBySomeField($value): ?OrderProduct
-//    {
-//        return $this->createQueryBuilder('o')
-//            ->andWhere('o.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
-
 
     /**
      * Fetch products related to a specific order.
@@ -63,5 +41,16 @@ class OrderProductRepository extends ServiceEntityRepository
             ->setParameter('orderId', $orderId)
             ->getQuery()
             ->getResult();
+    }
+
+    /**
+     * Saves the given entity to the database.
+     *
+     * @param OrderProduct $orderProduct The OrderProduct entity to save.
+     */
+    public function save(OrderProduct $orderProduct): void
+    {
+        $this->entityManager->persist($orderProduct);
+        $this->entityManager->flush();
     }
 }
