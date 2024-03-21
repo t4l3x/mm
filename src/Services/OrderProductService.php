@@ -81,7 +81,7 @@ class OrderProductService
     private function syncProductWithMoysklad(Product $product): void
     {
 
-        if (!empty($product->getMoysklad())) {
+        if (empty($product->getMoysklad())) {
 
             $this->logger->info('Syncing product with Moysklad', ['product_id' => $product->getId()]);
             // Assuming $product->getSku() returns the SKU of the product
