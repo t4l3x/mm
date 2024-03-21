@@ -95,7 +95,7 @@ class OrderProductService
                         $product->setMoysklad($mp['id']);
                         // Save the updated product to the database
 
-                        $this->orderProductRepository->save($product);
+                        $this->productRepository->save($product);
                         $this->logger->info('Product synced with Moysklad', ['moysklad_id' => $mp['id']]);
                         break;
                     }

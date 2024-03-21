@@ -4,7 +4,6 @@ namespace App\Repository;
 
 use App\Entity\OrderProduct;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -17,13 +16,11 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class OrderProductRepository extends ServiceEntityRepository
 {
-    private $entityManager;
-
-    public function __construct(ManagerRegistry $registry, EntityManagerInterface $entityManager)
+    public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, OrderProduct::class);
-        $this->entityManager = $entityManager;
     }
+
 
     /**
      * Fetch products related to a specific order.
@@ -41,16 +38,5 @@ class OrderProductRepository extends ServiceEntityRepository
             ->setParameter('orderId', $orderId)
             ->getQuery()
             ->getResult();
-    }
-
-    /**
-     * Saves the given entity to the database.
-     *
-     * @param OrderProduct $orderProduct The OrderProduct entity to save.
-     */
-    public function save(OrderProduct $orderProduct): void
-    {
-        $this->entityManager->persist($orderProduct);
-        $this->entityManager->flush();
     }
 }
