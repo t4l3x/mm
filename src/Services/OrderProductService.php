@@ -87,7 +87,7 @@ class OrderProductService
             // Assuming $product->getSku() returns the SKU of the product
 
             $response = $this->moysklad->searchProducts($product->getSku());
-
+            dd($response);
             if (!empty($response->rows)) {
                 foreach ($response->rows as $mp) {
 
