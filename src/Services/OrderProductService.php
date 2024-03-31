@@ -101,6 +101,7 @@ class OrderProductService
                         if ($bundle){
                             $product->setComponent(1);
                         }
+
                         $this->productRepository->save($product);
                         $this->logger->info('Product synced with Moysklad', ['moysklad_id' => $mp['id']]);
                         break;
