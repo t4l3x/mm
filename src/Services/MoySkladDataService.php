@@ -48,7 +48,7 @@ class MoySkladDataService
                 ->entity()
                 ->product()
                 ->filter([
-                    ['code',FilterSign::NEQ,$sku]
+                    ['code',FilterSign::EQ,$sku]
                 ]) // Adjust limit as needed
                 ->get();
         } catch (\Exception $e) {
@@ -69,7 +69,7 @@ class MoySkladDataService
                 ->entity()
                 ->bundle()
                 ->filter([
-                    ['code',FilterSign::NEQ,$sku]
+                    ['code',FilterSign::EQ,$sku]
                 ]) // Adjust limit as needed
                 ->get();
         } catch (\Exception $e) {
