@@ -119,7 +119,7 @@ class OrderProductService
 
 
         $productType = $product->getComponent() ? 'bundle' : 'product';
-        echo $product->getComponent()."</n>";
+
         $product = $product->getMoysklad();
         return [
             'quantity' => floatval($orderProduct->getQuantity()) ?? 1,
