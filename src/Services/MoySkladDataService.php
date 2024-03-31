@@ -4,8 +4,6 @@ declare(strict_types=1);
 namespace App\Services;
 
 
-use Evgeek\Moysklad\Enums\FilterSign;
-
 class MoySkladDataService
 {
     private $moyskladConnection;
@@ -47,9 +45,7 @@ class MoySkladDataService
             return $this->moyskladConnection->query()
                 ->entity()
                 ->product()
-                ->filter([
-                    ['code',FilterSign::EQ,$sku]
-                ]) // Adjust limit as needed
+                ->search($sku) // Adjust limit as needed
                 ->get();
         } catch (\Exception $e) {
             //
@@ -59,26 +55,6 @@ class MoySkladDataService
 
     }
 
-
-    public function searchProductByBundle($sku)
-    {
-
-        try {
-
-            return $this->moyskladConnection->query()
-                ->entity()
-                ->bundle()
-                ->filter([
-                    ['code',FilterSign::EQ,$sku]
-                ]) // Adjust limit as needed
-                ->get();
-        } catch (\Exception $e) {
-            //
-            // Handle exception
-            throw new \Exception('Failed to fetch products: ' . $e->getMessage(), $e->getCode(), $e);
-        }
-
-    }
     /**
      * Fetches order data from Moysklad.
      *
