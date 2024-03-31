@@ -86,8 +86,10 @@ class OrderProductService
             $this->logger->info('Syncing product with Moysklad', ['product_id' => $product->getId()]);
             // Assuming $product->getSku() returns the SKU of the product
 
+            $bundle = false;
             $response = $this->moysklad->searchProducts($product->getSku());
             if(empty($response['rows'])) {
+                $bundle = true;
                 $response = $this->moysklad->searchProductByBundle($product->getSku());
             }
             if (!empty($response['rows'])) {
@@ -96,7 +98,9 @@ class OrderProductService
                     if ($product->getSku() == $mp['code']) {
                         $product->setMoysklad($mp['id']);
                         // Save the updated product to the database
-
+                        if ($bundle){
+                            $product->setComponent(1);
+                        }
                         $this->productRepository->save($product);
                         $this->logger->info('Product synced with Moysklad', ['moysklad_id' => $mp['id']]);
                         break;
@@ -113,6 +117,7 @@ class OrderProductService
 
 
         $productType = $product->getComponent() ? 'bundle' : 'product';
+        echo $product->getComponent()."</n>";
         $product = $product->getMoysklad();
         return [
             'quantity' => floatval($orderProduct->getQuantity()) ?? 1,
