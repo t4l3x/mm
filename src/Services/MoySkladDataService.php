@@ -45,7 +45,7 @@ class MoySkladDataService
             return $this->moyskladConnection->query()
                 ->entity()
                 ->product()
-                ->filter(['code','=',$sku]) // Adjust limit as needed
+                ->filter('code','=',$sku) // Adjust limit as needed
                 ->get();
         } catch (\Exception $e) {
             //
