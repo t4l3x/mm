@@ -55,6 +55,24 @@ class MoySkladDataService
 
     }
 
+
+    public function searchProductByBundle($sku)
+    {
+
+        try {
+
+            return $this->moyskladConnection->query()
+                ->entity()
+                ->bundle()
+                ->search($sku) // Adjust limit as needed
+                ->get();
+        } catch (\Exception $e) {
+            //
+            // Handle exception
+            throw new \Exception('Failed to fetch products: ' . $e->getMessage(), $e->getCode(), $e);
+        }
+
+    }
     /**
      * Fetches order data from Moysklad.
      *
