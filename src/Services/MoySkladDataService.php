@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace App\Services;
 
 
+use Evgeek\Moysklad\Enums\FilterSign;
+
 class MoySkladDataService
 {
     private $moyskladConnection;
@@ -45,7 +47,9 @@ class MoySkladDataService
             return $this->moyskladConnection->query()
                 ->entity()
                 ->product()
-                ->filter('code','=',$sku) // Adjust limit as needed
+                ->filter([
+                    ['code',FilterSign::NEQ,$sku]
+                ]) // Adjust limit as needed
                 ->get();
         } catch (\Exception $e) {
             //
@@ -64,7 +68,9 @@ class MoySkladDataService
             return $this->moyskladConnection->query()
                 ->entity()
                 ->bundle()
-                ->search($sku) // Adjust limit as needed
+                ->filter([
+                    ['code',FilterSign::NEQ,$sku]
+                ]) // Adjust limit as needed
                 ->get();
         } catch (\Exception $e) {
             //
