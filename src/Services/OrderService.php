@@ -369,7 +369,7 @@ class OrderService
                 $positions = $this->orderProductService->processOrderProducts($order, $discounts['discount']);
                 $shipping = $this->processShippingDetails($order);
                 $positions = array_merge($positions, $shipping);
-
+                dd($positions);
                 $orderData = $this->buildOrderDataForMoysklad($order, $positions, $discounts);
 
                 $this->handleOrderUpdateInMoysklad($order, $orderData);
